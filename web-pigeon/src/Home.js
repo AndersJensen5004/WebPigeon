@@ -1,26 +1,15 @@
-import { useState, useEffect } from "react";
 import MessengerList from "./MessengerList";
+import useFetch from "./useFetch";
 
 const Home = () => {
 
-    const [messengers, setMessengers] = useState([
-        {title: 'General', body: 'test1', creator: 'EquityCats', id: 1},
-        {title: 'Discussion', body: 'test2', creator: 'EquityCats', id: 2},
-        {title: 'Testing', body: 'test3', creator: 'EquityCats', id: 3}
-    ]);
-
-    const handleDelete = (id) => {
-        const newMessengers = messengers.filter(m => m.id !== id);
-        setMessengers(newMessengers)
-    }
-
-    useEffect(() => {
-       console.log('useEffect'); 
-    });
+    const {data: messengers, isPending, error} = useFetch("http://localhost:8000/messengers");
 
     return (
         <div className="home">
-            <MessengerList messengers = {messengers} title = "Messengers" handleDelete={handleDelete}/>
+            { error && <div>{error}</div>}
+            { isPending && <div>Loading...</div>}
+            {messengers && <MessengerList messengers = {messengers} title = "Messengers"/>}
         </div>
     );
 }
