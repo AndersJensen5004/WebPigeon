@@ -14,8 +14,9 @@ const Navbar = () => {
             <h1>Web Pigeon</h1>
             <div className="links">
                 <Link to="/">Home</Link>
-                <Link to="/">Find</Link>
+                <Link to="/search">Find</Link>
                 <Link to="/create" >Create</Link>
+                <Link to="/login" >Login</Link>
             </div>
         </nav>
         </>

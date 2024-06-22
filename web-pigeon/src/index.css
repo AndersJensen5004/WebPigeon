@@ -45,10 +45,10 @@
   text-align: center;
   
   background: #e4e4e4;
-	border-bottom: 3px inset rgba(0,0,0,.5);
-	border-right: 3px inset rgba(0,0,0,.5);
-	border-left: 3px inset rgba(255,255,255,.5);
-	border-top: 3px inset rgba(255,255,255,.5);
+	border-bottom: 3px inset rgba(0,0,0,.8);
+	border-right: 3px inset rgba(0,0,0,.8);
+	border-left: 3px inset rgba(255,255,255,.8);
+	border-top: 3px inset rgba(255,255,255,.8);
 	box-sizing: border-box;
 	color: #0f0f0f;
 
@@ -57,7 +57,7 @@
 	font-size: 1.2rem;
   font-weight: bold;
 
-	min-width: 150px;
+	min-width: 9rem;
 	padding: .5rem;
 	text-transform: uppercase;
 	width: auto;
@@ -147,4 +147,50 @@
   padding: 8px;
   border-radius: 8px;
   cursor: pointer;
+}
+
+/* login page */
+.login{
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+  align-items: center;
+}
+.login h2{
+  text-align: center;
+  margin-bottom: 1.8rem;
+  font-size: 1.9rem;
+}
+.login form label, input{
+  display: block;
+  margin-bottom: 0.6rem;
+  box-sizing: border-box;
+}
+.login form label{
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+.login form input {
+  font-size: 1rem;
+  max-width: 12rem;
+  font-family: monospace;
+  border: 2px solid #191919;
+  background-color: #f7f7f7;
+}
+.login button {
+  font-size: 1rem;
+  background: #e4e4e4;
+	border-bottom: 3px inset rgba(0,0,0,.8);
+	border-right: 3px inset rgba(0,0,0,.8);
+	border-left: 3px inset rgba(255, 255, 255, 0.8);
+	border-top: 3px inset rgba(255, 255, 255, 0.8);
+	box-sizing: border-box;
+	color: #0f0f0f;
+}
+.login button:hover {
+  color: #003bcf;
+  background: #f1f1f1; 
+}
+.login button:active {
+  background: #999999; 
 }

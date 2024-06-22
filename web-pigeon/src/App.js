@@ -4,6 +4,7 @@ import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import Create from './Create.js';
 import MessengerDetails from './MessengerDetails.js';
 import NotFound from './NotFount.js';
+import Login from './Login.js';
 
 function App() {
   return (
@@ -17,6 +18,9 @@ function App() {
             </Route>
             <Route exact path="/create" element=
               {<Create />}>
+            </Route>
+            <Route exact path="/login" element=
+              {<Login />}>
             </Route>
             <Route exact path="/messengers/:id" element=
               {<MessengerDetails/>}>
