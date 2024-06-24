@@ -1,7 +1,51 @@
+/* Webkit browsers (Chrome, Safari, newer versions of Opera) */
+::-webkit-scrollbar {
+  width: 20px;
+  height: 20px;
+}
+
+::-webkit-scrollbar-track {
+  background: #c0c0c0;
+  border-left: 1px solid #868686;
+  border-right: 1px solid #ffffff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #868686 #868686 #ffffff;
+  box-shadow: inset 2px 2px #dfdfdf, inset -2px -2px #808080;
+}
+
+::-webkit-scrollbar-button {
+  display: block;
+  height: 16px;
+  width: 16px;
+  background: #c0c0c0;
+  border: 1px solid;
+  border-color: #ffffff #868686 #868686 #ffffff;
+  box-shadow: inset 2px 2px #dfdfdf, inset -2px -2px #808080;
+}
+
+::-webkit-scrollbar-button:vertical:start:decrement {
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='4,6 12,6 8,2' fill='black'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar-button:vertical:end:increment {
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='4,10 12,10 8,14' fill='black'/%3E%3C/svg%3E");
+}
+
+
 /* base styles */
+@font-face {
+  font-family: 'Perfect DOS VGA 437';
+  src: url('Perfect DOS VGA 437.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 * {
   margin: 0;
-  font-family: "Times";
+  font-family: 'Perfect DOS VGA 437', Times;
   color: #2b2b2b;
   background-color: #e4e4e4;
 }
@@ -12,9 +56,9 @@
   font-weight: bold;
   margin: 0 auto;
   font-size: 0.9rem;
-  min-height: 1.15rem;
-  max-height: 1.15rem;
-  background-color: #0035bc;
+  min-height: 1.2rem;
+  max-height: 1.2rem;
+  background-color: #002d9e;
   color: #f7f7f7;
 }
 .header img {
@@ -34,10 +78,18 @@
 .navbar h1 {
   color: #003bcf;
   font-weight: bold;
-  font-size: 34px;
+  font-size: 2.5rem;
+
+}
+.links .home {
+  display: flex;
+  align-items: center;
 }
 .navbar .links {
   margin-left: auto;
+}
+.navbar .underline{
+  text-decoration: underline;
 }
 .navbar a {
   
@@ -45,16 +97,16 @@
   text-align: center;
   
   background: #e4e4e4;
-	border-bottom: 3px inset rgba(0,0,0,.8);
-	border-right: 3px inset rgba(0,0,0,.8);
-	border-left: 3px inset rgba(255,255,255,.8);
-	border-top: 3px inset rgba(255,255,255,.8);
+	border-bottom: 3px inset rgba(0,0,0,.9);
+	border-right: 3px inset rgba(0,0,0,.9);
+	border-left: 3px inset rgba(255,255,255,.9);
+	border-top: 3px inset rgba(255,255,255,.9);
 	box-sizing: border-box;
 	color: #0f0f0f;
 
 	cursor: pointer;
 	display: inline-block;
-	font-size: 1.2rem;
+	font-size: 1.3rem;
   font-weight: bold;
 
 	min-width: 9rem;
@@ -63,11 +115,13 @@
 	width: auto;
 	
 }
-.navbar a:hover {
+.navbar a:hover,
+.navbar a:hover * {
   color: #003bcf;
   background: #f1f1f1; 
 }
-.navbar a:active {
+.navbar a:active,
+.navbar a:active *{
   background: #999999; 
 }
 .navbar img{
@@ -80,14 +134,28 @@
   padding: 20px;
 }
 
-/* messenger previews */
+
+/* home page */
+.messenger-title,
+.messenger-title * {
+  display: flex;
+  align-items: center;
+  background-color: #00788e;
+}
+.messenger-title h1 {
+  color: #f8f8f8;
+}
+.messenger-title img {
+  margin: 0.3rem 0.7rem 0 0.4rem;
+}
 .messenger-preview {
   padding: 10px 16px;
   margin: 20px 0;
   border-bottom: 2px solid #9b9b9b;
 }
-.messenger-preview:hover {
-  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.1);
+.messenger-preview:hover,
+.messenger-preview:hover * {
+  background: #f1f1f1;
 }
 .messenger-preview h2{
   font-size: 20px;
@@ -113,7 +181,7 @@
   color: #fff;
   border: 0;
   padding: 8px;
-  border-radius: 8px;
+  border-radius: 1px;
   cursor: pointer;
 }
 
@@ -178,19 +246,29 @@
   background-color: #f7f7f7;
 }
 .login button {
-  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.9rem;
+  font-size: 1.3rem;
+  font-weight: bold;
   background: #e4e4e4;
-	border-bottom: 3px inset rgba(0,0,0,.8);
-	border-right: 3px inset rgba(0,0,0,.8);
-	border-left: 3px inset rgba(255, 255, 255, 0.8);
-	border-top: 3px inset rgba(255, 255, 255, 0.8);
+	border-bottom: 3px inset rgba(0,0,0,.9);
+	border-right: 3px inset rgba(0,0,0,.9);
+	border-left: 3px inset rgba(255, 255, 255, 0.9);
+	border-top: 3px inset rgba(255, 255, 255, 0.9);
 	box-sizing: border-box;
 	color: #0f0f0f;
 }
-.login button:hover {
+.login button:hover,
+.login button:hover * {
   color: #003bcf;
   background: #f1f1f1; 
 }
-.login button:active {
+.login button:active,
+.login button:active * {
   background: #999999; 
+}
+.login button img{
+  margin: 0.1rem 0 0.1rem 0.25rem;
+  max-height: 1.5rem;
 }

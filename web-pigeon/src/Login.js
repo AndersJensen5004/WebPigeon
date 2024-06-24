@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import checkmark from "./checkmark.png";
+import restrictmark from "./restrictmark.png";
 
 const Login = () => {
 
@@ -26,7 +28,10 @@ const Login = () => {
                     value = {password}
                     onChange = {(e) => setPassword(e.target.value)}
                 />
-            <button>Login</button>    
+            <button>
+                Login
+                <img src={username !== '' && password !== '' ? checkmark : restrictmark} alt="status mark" />
+            </button>    
             </form>
         </div>
     );
