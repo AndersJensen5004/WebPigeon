@@ -28,7 +28,7 @@ const Create = () => {
 
     return (
         <div className="create">
-            <h2>Add a new messenger</h2>
+                <h2>Add a new messenger</h2>
             <form onSubmit={handleSubmit}>
                 <label>Messenger Title:</label>
                 <input

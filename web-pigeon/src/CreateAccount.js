@@ -1,0 +1,48 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import checkmark from "./checkmark.png";
+import restrictmark from "./restrictmark.png";
+
+const CreateAccount = () => {
+
+    const[username, setUsername] = useState('');
+    const[password, setPassword] = useState('');
+    const[confirmedPassword, setConfirmedPassword] = useState('');
+
+    const navigate = useNavigate();
+
+    return (
+        <div className="login">
+            <h2>Create An Account!</h2>
+            <form>
+            <label>Username:</label>
+                <input
+                    type = "username"
+                    required
+                    value = {username}
+                    onChange = {(e) => setUsername(e.target.value)}
+                />
+            <label>Password:</label>
+                <input
+                    type = "password"
+                    required
+                    value = {password}
+                    onChange = {(e) => setPassword(e.target.value)}
+                />
+            <label>Confirm Password:</label>
+                <input
+                    type = "password"
+                    required
+                    value = {confirmedPassword}
+                    onChange = {(e) => setConfirmedPassword(e.target.value)}
+                />
+            <button>
+                Create Account
+                <img src={username !== '' && password !== '' && password === confirmedPassword? checkmark : restrictmark} alt="status mark" />
+            </button>    
+            </form>
+        </div>
+    );
+}
+ 
+export default CreateAccount;
