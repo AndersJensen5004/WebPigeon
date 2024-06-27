@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import checkmark from "./checkmark.png";
 import restrictmark from "./restrictmark.png";
 
@@ -7,8 +8,25 @@ const Login = () => {
 
     const[username, setUsername] = useState('');
     const[password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
     const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        try {
+            const response = await axios.post('http://localhost:5000/login', {
+                username,
+                password
+            });
+            console.log(response.data);
+            navigate('/home');
+        } catch (error) {
+            setError(error.response?.data?.error || 'Login failed. Please check your credentials.');
+        }
+    };
 
     return (
         <div className="login">
@@ -16,8 +34,9 @@ const Login = () => {
             <span>
                 <h3>If you haven't already...</h3>
                 <button onClick={()=> {navigate('/createaccount')}}>Create Account</button>
-            </span>    
-            <form>
+            </span>
+            {error && <p className="error">{error}</p>}    
+            <form onSubmit={handleSubmit}>
             <label>Username:</label>
                 <input
                     type = "username"
