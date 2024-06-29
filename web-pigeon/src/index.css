@@ -52,14 +52,20 @@
 .header {
   display: flex;
   align-items: center;
-  font-family: monospace;
   font-weight: bold;
   margin: 0 auto;
   font-size: 0.9rem;
   min-height: 1.2rem;
   max-height: 1.2rem;
   background-color: #002d9e;
+}
+.header h4{
+  font-family: monospace;
+  background-color: #002d9e;
   color: #f7f7f7;
+}
+.header .username{
+  margin-left: auto;
 }
 .header img {
   height: 0.9rem;
@@ -81,7 +87,7 @@
   font-size: 2.5rem;
 
 }
-.links .home {
+.navbar .links .home {
   display: flex;
   align-items: center;
 } 
@@ -93,7 +99,7 @@
 .navbar .underline{
   text-decoration: underline;
 }
-.navbar a {
+.navbar .link {
   
   text-decoration: none;
   text-align: center;
@@ -118,13 +124,13 @@
 	width: auto;
 	
 }
-.navbar a:hover,
-.navbar a:hover * {
+.navbar .link:hover,
+.navbar .link:hover * {
   color: #003bcf;
   background: #f1f1f1; 
 }
-.navbar a:active,
-.navbar a:active *{
+.navbar .link:active,
+.navbar .link:active *{
   background: #999999; 
 }
 .navbar img{

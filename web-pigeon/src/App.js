@@ -1,6 +1,7 @@
 import Navbar from './Navbar.js';
 import Home from './Home.js';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import { AuthProvider } from './AuthContext';
 import Create from './Create.js';
 import Login from './Login.js';
 import MessengerDetails from './MessengerDetails.js';
@@ -9,6 +10,7 @@ import CreateAccount from './CreateAccount.js';
 
 function App() {
   return (
+    <AuthProvider>
     <Router>
       <div className="App">
         <Navbar />
@@ -36,6 +38,7 @@ function App() {
         </div>
       </div>
     </Router>
+    </AuthProvider>
   );
 }
 
