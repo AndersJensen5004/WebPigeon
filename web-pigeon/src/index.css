@@ -74,12 +74,12 @@
   margin-right: 0.3rem;
   margin-left: 0.2rem;
   background-color: transparent;
-}
+} 
 .navbar {
   padding: 2.5rem 1.5rem 1.5rem 1.5rem;
   display: flex;
   align-items: center;
-  max-width: 1200px;
+  max-width: 70%;
   margin: 0 auto;
   border-bottom: 2px solid #2c2c2c;
 }
@@ -144,33 +144,54 @@
   margin-right: 1.1rem;
 }
 .content {
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 20px;
+  max-width: calc(70% + 3rem);
+  margin: auto;
+}
+
+/* 404 page */
+.not-found{
+  margin-top: 4rem;
+  text-align: center;
 }
 
 
 /* home page */
-.messenger-title,
-.messenger-title * {
+.messenger-title{
   display: flex;
   align-items: center;
-  background-color: #00788e;
+  background: rgb(0,50,129);
+  background: linear-gradient(90deg, rgba(0,50,129,1) 0%, rgba(0,178,214,1) 100%);
+  width: 100%;
+  height: 2rem;
+  margin-bottom: 2rem;
 }
 .messenger-title h1 {
+  font-size: 1.7rem;
   color: #f8f8f8;
+  background-color: unset;
 }
 .messenger-title img {
-  margin: 0.3rem 0.7rem 0 0.4rem;
+  max-height: 1.8rem;
+  margin: 0.1rem 0.5rem 0 0.4rem;
+  background-color: unset;
 }
 .messenger-preview {
-  padding: 10px 16px;
-  margin: 20px 0;
-  border-bottom: 2px solid #9b9b9b;
+  max-width: 55%;
+  padding: 0.8rem 1.4rem;
+  margin: 0 auto;
+  border: 2px solid #7c7c7c;
+  border-bottom: none;
+  box-sizing: border-box;
+}
+.messenger-preview:last-child {
+  border-bottom: 2px solid #7c7c7c;
 }
 .messenger-preview:hover,
 .messenger-preview:hover * {
-  background: #f1f1f1;
+  background: #b9d9ff;
+}
+.messenger-preview:hover .messenger-preview-arrow {
+  opacity: 1;
 }
 .messenger-preview h2{
   font-size: 20px;
@@ -178,7 +199,14 @@
   margin-bottom: 8px;
 }
 .messenger-preview a{
+  display: flex;
   text-decoration: none;
+  justify-content: space-between;
+  align-items: center;
+}
+.messenger-preview-arrow {
+  transform: rotate(90deg);
+  opacity: 0;
 }
 
 

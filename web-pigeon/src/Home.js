@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import MessengerList from "./MessengerList";
 import axios from 'axios';
+import folder from "./folder.png";
+
 
 const Home = () => {
     const [messengers, setMessengers] = useState(null);
@@ -23,11 +25,17 @@ const Home = () => {
     }, []);
 
     return (
+        <>
+        <div className="messenger-title">
+        <img src={folder} alt="folder"/>
+        <h1>Messengers</h1>
+        </div>
         <div className="home">
             { error && <div>{error}</div>}
             { isPending && <div>Loading...</div>}
-            {messengers && <MessengerList messengers={messengers} title="Messengers"/>}
+            {messengers && <MessengerList messengers={messengers}/>}
         </div>
+        </>
     );
 }
  
