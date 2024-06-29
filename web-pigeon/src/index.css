@@ -50,6 +50,8 @@
   background-color: #e4e4e4;
 }
 .header {
+  position: fixed;
+  width: 100%;
   display: flex;
   align-items: center;
   font-weight: bold;
@@ -74,7 +76,7 @@
   background-color: transparent;
 }
 .navbar {
-  padding: 20px;
+  padding: 2.5rem 1.5rem 1.5rem 1.5rem;
   display: flex;
   align-items: center;
   max-width: 1200px;

@@ -61,6 +61,52 @@ def login():
         }), 200
     else:
         return jsonify({"error": "Invalid username or password"}), 4011
+    
+    
+    
+#####################################
+# Messengers
+#####################################
+messengers_collection = db['messengers']
+messages_collection = db['messages']
+
+@app.route('/messengers', methods=['GET'])
+def get_messengers():
+    messengers = list(messengers_collection.find())
+    for messenger in messengers:
+        messenger['_id'] = str(messenger['_id'])
+    return jsonify(messengers)
+
+@app.route('/messengers/<id>', methods=['GET'])
+def get_messenger(id):
+    messenger = messengers_collection.find_one({'_id': ObjectId(id)})
+    if messenger:
+        messenger['_id'] = str(messenger['_id'])
+        messages = list(messages_collection.find({'messenger_id': id}))
+        for message in messages:
+            message['_id'] = str(message['_id'])
+        messenger['messages'] = messages
+        return jsonify(messenger)
+    return jsonify({'error': 'Messenger not found'}), 404
+
+@app.route('/messengers', methods=['POST'])
+def create_messenger():
+    data = request.json
+    result = messengers_collection.insert_one(data)
+    return jsonify({'id': str(result.inserted_id)}), 201
+
+@app.route('/messengers/<id>/messages', methods=['POST'])
+def add_message(id):
+    data = request.json
+    data['messenger_id'] = id
+    result = messages_collection.insert_one(data)
+    return jsonify({'id': str(result.inserted_id)}), 201
+
+@app.route('/messengers/<id>', methods=['DELETE'])
+def delete_messenger(id):
+    messengers_collection.delete_one({'_id': ObjectId(id)})
+    messages_collection.delete_many({'messenger_id': id})
+    return '', 204
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,56 +1,63 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from './AuthContext';
+import axios from 'axios';
 
 const Create = () => {
     const [title, setTitle] = useState('');
-    const [body, setBody] = useState('');
-    const [creator, setCreator] = useState('default2');
+    const [description, setDescription] = useState('');
     const [isPending, setIsPending] = useState(false);
+    const [error, setError] = useState(null);
 
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const messenger = {title, body, creator}
+        
+        if (!user) {
+            setError("You must be logged in to create a messenger");
+            return;
+        }
+
+        const messenger = {
+            title,
+            description,
+            creator: user.username
+        }
 
         setIsPending(true);
 
-        fetch('http://localhost:8000/messengers', {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(messenger)
-        }).then(() => {
-            console.log('new messenger added');
+        try {
+            await axios.post('http://localhost:5000/messengers', messenger);
+            console.log('New messenger added');
             setIsPending(false);
             navigate('/');
-        });
+        } catch (err) {
+            setError(err.message);
+            setIsPending(false);
+        }
     }
 
     return (
         <div className="create">
-                <h2>Add a new messenger</h2>
+            <h2>Add a new messenger</h2>
+            {error && <div className="error">{error}</div>}
             <form onSubmit={handleSubmit}>
                 <label>Messenger Title:</label>
                 <input
-                    type = "text"
+                    type="text"
                     required
-                    value = {title}
-                    onChange = {(e) => setTitle(e.target.value)}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                 />
-                <label>Messenger Body:</label>
+                <label>Messenger Description:</label>
                 <textarea
                     required
-                    value = {body}
-                    onChange = {(e) => setBody(e.target.value)}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                 ></textarea>
-                <label>Creator:</label>
-                <select
-                    value = {creator}
-                    onChange = {(e) => setCreator(e.target.value)}
-                >
-                    <option value = "default1">default1</option>
-                    <option value = "default2">default2</option>
-                </select>
+                <p>Creator: {user ? user.username : 'Not logged in'}</p>
                 { !isPending && <button>Add Messenger</button> }
                 { isPending && <button disabled>Loading...</button> }
             </form>
