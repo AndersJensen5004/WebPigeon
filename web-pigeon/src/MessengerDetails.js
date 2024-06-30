@@ -10,8 +10,12 @@ const MessengerDetails = () => {
     const [newMessage, setNewMessage] = useState('');
     const [error, setError] = useState(null);
     const [isPending, setIsPending] = useState(true);
+    const [isSending, setIsSending] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
+
+    const MAX_CHARACTERS = 1000;
 
     useEffect(() => {
         const fetchMessenger = async () => {
@@ -27,7 +31,11 @@ const MessengerDetails = () => {
         fetchMessenger();
     }, [id]);
 
-    const handleDelete = async () => {
+    const handleDeleteClick = () => {
+        setShowDeleteConfirm(true);
+    };
+
+    const handleDeleteConfirm = async () => {
         try {
             await axios.delete(`http://localhost:5000/messengers/${id}`);
             navigate('/');
@@ -36,12 +44,21 @@ const MessengerDetails = () => {
         }
     };
 
+    const handleDeleteCancel = () => {
+        setShowDeleteConfirm(false);
+    };
+
     const handleAddMessage = async (e) => {
         e.preventDefault();
         if (!user) {
             setError('You must be logged in to send a message');
             return;
         }
+        if (newMessage.length > MAX_CHARACTERS) {
+            setError(`Message exceeds ${MAX_CHARACTERS} character limit`);
+            return;
+        }
+        setIsSending(true);
         try {
             await axios.post(`http://localhost:5000/messengers/${id}/messages`, {
                 content: newMessage,
@@ -51,51 +68,67 @@ const MessengerDetails = () => {
             const response = await axios.get(`http://localhost:5000/messengers/${id}`);
             setMessenger(response.data);
             setNewMessage('');
+            setError(null);
         } catch (err) {
             setError(err.message);
+        } finally {
+            setIsSending(false);
         }
     };
 
     return ( 
-        <div className="messenger-details retro-window">
-            <div className="window-title-bar">
-                <span className="window-title">{messenger ? messenger.title : 'Messenger'}</span>
-                <button className="window-close-btn">X</button>
-            </div>
+        <div className="messenger-details terminal-interface">
             { isPending && <div className="loading">Loading...</div> }
             { error && <div className="error">{ error }</div> }
             { messenger && (
-                <div className="retro-layout">
-                    <div className="sidebar">
-                        <h2>Messenger Info</h2>
-                        <p>Creator: {messenger.creator}</p>
-                        <div className="messenger-body">{messenger.body}</div>
+                <>
+                    <div className="terminal-header">
+                        <div>
+                            <h2>MESSENGER: {messenger.title}</h2>
+                            <p>CREATOR: {messenger.creator}</p>
+                        </div>
                         {user && user.username === messenger.creator && (
-                            <button onClick={handleDelete} className="delete-btn">Delete Messenger</button>
+                            <button onClick={handleDeleteClick} className="delete-btn">DELETE</button>
                         )}
                     </div>
-                    <div className="chat-area">
+                    <div className="terminal-body">
                         <div className="messages">
                             {messenger.messages && messenger.messages.map(message => (
                                 <div key={message._id} className="message">
-                                    <div className="message-header">
-                                        <span className="username">{message.username}</span>
-                                        <span className="timestamp">{new Date(message.timestamp).toLocaleString()}</span>
-                                    </div>
-                                    <p className="message-content">{message.content}</p>
+                                    <span className="timestamp">[{new Date(message.timestamp).toLocaleString()}]</span>
+                                    <span className="username">{message.username}:</span>
+                                    <span className="message-content">{message.content}</span>
                                 </div>
                             ))}
                         </div>
+                    </div>
+                    <div className="terminal-footer">
                         <form onSubmit={handleAddMessage} className="message-form">
-                            <textarea 
+                            <span className="prompt">&gt;</span>
+                            <input 
+                                type="text"
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
-                                placeholder="Type a message..."
+                                placeholder="Type your message..."
+                                maxLength={MAX_CHARACTERS}
+                                disabled={isSending}
                                 required
-                            ></textarea>
-                            <button type="submit">Send</button>
+                            />
+                            <button type="submit" disabled={isSending}>
+                                {isSending ? 'Sending...' : 'SEND'}
+                            </button>
                         </form>
+                        <div className="character-count">
+                            {newMessage.length}/{MAX_CHARACTERS}
+                        </div>
                     </div>
+                </>
+            )}
+            {showDeleteConfirm && (
+                <div className="confirm-delete">
+                    <p>Are you sure you want to delete this messenger?</p>
+                    <button onClick={handleDeleteConfirm}>Yes, delete</button>
+                    <button onClick={handleDeleteCancel}>Cancel</button>
                 </div>
             )}
         </div>

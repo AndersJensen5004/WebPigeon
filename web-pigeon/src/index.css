@@ -210,148 +210,194 @@
 }
 
 /* messenger details page */
-.messenger-details {
-  background-color: #c0c0c0;
-  color: #000000;
-  border: 2px solid #dfdfdf;
-  border-bottom-color: #404040;
-  border-right-color: #404040;
+.messenger-details.terminal-interface {
+  font-family: 'Perfect DOS VGA 437', 'Courier New', monospace;
+  background-color: #e4e4e4;
+  color: #2b2b2b;
+  height: calc(100vh - 7rem);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-top: 7rem;
+  border: 2px solid #7c7c7c;
 }
 
-.retro-window {
-  width: 800px;
-  height: 600px;
-  margin: 20px auto;
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+.messenger-details.terminal-interface * {
+  background-color: #e4e4e4;
+  color: #2b2b2b;
 }
 
-.window-title-bar {
-  background: linear-gradient(to right, #000080, #1084d0);
-  color: white;
-  padding: 3px 5px 3px 3px;
+.terminal-header {
+  border-bottom: 1px solid #7c7c7c;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.window-title {
-  font-weight: bold;
-  font-size: 12px;
+.terminal-header h2 {
+  font-size: 1.5em;
+  margin: 0;
 }
 
-.window-close-btn {
-  background-color: #c0c0c0;
-  border: 1px solid #ffffff;
-  border-bottom-color: #404040;
-  border-right-color: #404040;
-  color: #000000;
-  font-size: 10px;
-  font-weight: bold;
-  padding: 1px 4px;
+.terminal-header p {
+  font-size: 1em;
+  margin: 0;
+}
+
+.delete-btn {
+  background: #e4e4e4;
+  border-bottom: 3px inset rgba(0,0,0,.9);
+  border-right: 3px inset rgba(0,0,0,.9);
+  border-left: 3px inset rgba(255,255,255,.9);
+  border-top: 3px inset rgba(255,255,255,.9);
+  box-sizing: border-box;
+  color: #0f0f0f;
   cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 5px 10px;
 }
 
-.retro-layout {
-  display: flex;
-  height: calc(100% - 22px);
+.delete-btn:hover {
+  color: #003bcf;
+  background: #f1f1f1;
 }
 
-.sidebar {
-  width: 200px;
-  background-color: #c0c0c0;
-  border-right: 2px solid #808080;
-  padding: 10px;
-  overflow-y: auto;
+.delete-btn:active {
+  background: #999999;
 }
 
-.sidebar h2 {
-  font-size: 14px;
-  margin-bottom: 10px;
+.confirm-delete {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #e4e4e4;
+  border: 2px solid #7c7c7c;
+  padding: 20px;
+  z-index: 1000;
 }
 
-.sidebar p, .sidebar .messenger-body {
-  font-size: 12px;
-  margin-bottom: 10px;
+.confirm-delete p {
+  margin-bottom: 15px;
 }
 
-.chat-area {
+.confirm-delete button {
+  margin-right: 10px;
+}
+
+.terminal-body {
   flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  border: 1px solid #7c7c7c;
+  padding: 10px;
+}
+
+.terminal-interface .messages {
   display: flex;
   flex-direction: column;
 }
 
-.messages {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 10px;
-  background-color: #ffffff;
-  border: 1px solid #808080;
-  border-bottom: none;
+.terminal-interface .message {
+  margin-bottom: 10px;
+  line-height: 1.4;
 }
 
-.message {
+.terminal-interface .timestamp {
+  color: #666;
+  margin-right: 10px;
+}
+
+.terminal-interface .username {
+  color: #003bcf;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.terminal-footer {
+  border-top: 1px solid #7c7c7c;
+  padding-top: 10px;
+}
+
+.terminal-interface .message-form {
+  display: flex;
   margin-bottom: 10px;
 }
 
-.message-header {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  margin-bottom: 2px;
+.terminal-interface .prompt {
+  color: #2b2b2b;
+  margin-right: 10px;
 }
 
-.username {
-  font-weight: bold;
-}
-
-.timestamp {
-  color: #808080;
-}
-
-.message-content {
-  font-size: 12px;
-}
-
-.message-form {
-  display: flex;
-  padding: 10px;
-  background-color: #c0c0c0;
-  border-top: 2px solid #808080;
-}
-
-.message-form textarea {
+.terminal-interface .message-form input {
   flex-grow: 1;
-  height: 40px;
-  border: 1px solid #808080;
-  background-color: #ffffff;
-  font-size: 12px;
+  background-color: #f7f7f7;
+  border: 1px solid #7c7c7c;
+  color: #2b2b2b;
+  font-family: 'Perfect DOS VGA 437', 'Courier New', monospace;
+  font-size: 1em;
   padding: 5px;
-  resize: none;
 }
 
-.message-form button, .delete-btn {
-  background-color: #c0c0c0;
-  border: 2px solid #dfdfdf;
-  border-bottom-color: #404040;
-  border-right-color: #404040;
-  color: #000000;
-  padding: 4px 8px;
-  font-size: 12px;
-  font-weight: bold;
-  margin-left: 10px;
+.terminal-interface .message-form input:focus {
+  outline: none;
+  border-color: #003bcf;
+}
+
+.terminal-interface button {
+  background: #e4e4e4;
+  border-bottom: 3px inset rgba(0,0,0,.9);
+  border-right: 3px inset rgba(0,0,0,.9);
+  border-left: 3px inset rgba(255,255,255,.9);
+  border-top: 3px inset rgba(255,255,255,.9);
+  box-sizing: border-box;
+  color: #0f0f0f;
   cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 5px 10px;
+  margin-left: 10px;
 }
 
-.message-form button:active, .delete-btn:active {
-  border: 2px solid #404040;
-  border-bottom-color: #dfdfdf;
-  border-right-color: #dfdfdf;
+.terminal-interface button:hover {
+  color: #003bcf;
+  background: #f1f1f1;
 }
 
-.loading, .error {
-  padding: 20px;
+.terminal-interface button:active {
+  background: #999999;
+}
+
+.terminal-interface .loading,
+.terminal-interface .error {
   text-align: center;
-  font-size: 14px;
+  padding: 20px;
+}
+.terminal-interface .message-form {
+  display: flex;
+  margin-bottom: 5px;
+}
+
+.terminal-interface .character-count {
+  text-align: right;
+  font-size: 0.8em;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.terminal-interface input:disabled,
+.terminal-interface button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.terminal-interface button:disabled:hover {
+  background: #e4e4e4;
+  color: #0f0f0f;
 }
 
 /* create new blog form */
