@@ -57,35 +57,48 @@ const MessengerDetails = () => {
     };
 
     return ( 
-        <div className="messenger-details">
-        { isPending && <div>Loading...</div> }
-        { error && <div>{ error }</div> }
-        { messenger && (
-            <article>
-                <h2>{messenger.title}</h2>
-                <p>Creator: {messenger.creator}</p>
-                <div>{messenger.body}</div>
-                <h3>Messages:</h3>
-                {messenger.messages && messenger.messages.map(message => (
-                    <div key={message._id} className="message">
-                        <p>{message.content}</p>
-                        <small>{message.username} - {new Date(message.timestamp).toLocaleString()}</small>
+        <div className="messenger-details retro-window">
+            <div className="window-title-bar">
+                <span className="window-title">{messenger ? messenger.title : 'Messenger'}</span>
+                <button className="window-close-btn">X</button>
+            </div>
+            { isPending && <div className="loading">Loading...</div> }
+            { error && <div className="error">{ error }</div> }
+            { messenger && (
+                <div className="retro-layout">
+                    <div className="sidebar">
+                        <h2>Messenger Info</h2>
+                        <p>Creator: {messenger.creator}</p>
+                        <div className="messenger-body">{messenger.body}</div>
+                        {user && user.username === messenger.creator && (
+                            <button onClick={handleDelete} className="delete-btn">Delete Messenger</button>
+                        )}
                     </div>
-                ))}
-                <form onSubmit={handleAddMessage}>
-                    <textarea 
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        required
-                    ></textarea>
-                    <button type="submit">Send Message</button>
-                </form>
-                {user && user.username === messenger.creator && (
-                    <button onClick={handleDelete}>Delete Messenger</button>
-                )}
-            </article>
-        )}
-    </div>
+                    <div className="chat-area">
+                        <div className="messages">
+                            {messenger.messages && messenger.messages.map(message => (
+                                <div key={message._id} className="message">
+                                    <div className="message-header">
+                                        <span className="username">{message.username}</span>
+                                        <span className="timestamp">{new Date(message.timestamp).toLocaleString()}</span>
+                                    </div>
+                                    <p className="message-content">{message.content}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <form onSubmit={handleAddMessage} className="message-form">
+                            <textarea 
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                placeholder="Type a message..."
+                                required
+                            ></textarea>
+                            <button type="submit">Send</button>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
  
