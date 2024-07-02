@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate} from 'react-router-dom';
-import { AuthContext } from './AuthContext';
-import pigeonLogo from "./pigeon-logo.png";
-import letterLogo from "./letter-logo.png";
-import world from "./world.png";
+import { AuthContext } from '../../contexts/AuthContext';
+import pigeonLogo from "../../assets/images/pigeon-logo.png";
+import letterLogo from "../../assets/images/letter-logo.png";
+import world from "../../assets/images/world.png";
 
 
 const Navbar = () => {

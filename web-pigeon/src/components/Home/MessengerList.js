@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import arrow from "./arrow.png";
+import arrow from "../../assets/images/arrow.png";
 
 const MessengerList = ({messengers}) => {
     return (

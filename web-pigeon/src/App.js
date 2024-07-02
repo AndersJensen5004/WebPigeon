@@ -1,12 +1,12 @@
-import Navbar from './Navbar.js';
-import Home from './Home.js';
+import Navbar from './components/Navbar/Navbar.js';
+import Home from './components/Home/Home.js';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import { AuthProvider } from './AuthContext';
-import Create from './Create.js';
-import Login from './Login.js';
-import MessengerDetails from './MessengerDetails.js';
-import NotFound from './NotFount.js';
-import CreateAccount from './CreateAccount.js';
+import { AuthProvider } from './contexts/AuthContext.js';
+import Create from './components/CreateMessenger/Create.js';
+import Login from './components/Login/Login.js';
+import MessengerDetails from './components/MessengerDetails/MessengerDetails.js';
+import NotFound from './components/NotFound/NotFount.js';
+import CreateAccount from './components/CreateAccount/CreateAccount.js';
 
 function App() {
   return (

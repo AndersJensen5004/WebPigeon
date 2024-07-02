@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import MessengerList from "./MessengerList";
 import axios from 'axios';
-import folder from "./folder.png";
+import folder from "../../assets/images/folder.png";
 
 
 const Home = () => {

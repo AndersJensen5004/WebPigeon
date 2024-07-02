@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AuthContext } from './AuthContext';
+import { AuthContext } from '../../contexts/AuthContext';
 import axios from 'axios';
 
 const MessengerDetails = () => {

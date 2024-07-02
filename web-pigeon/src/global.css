@@ -39,7 +39,7 @@
 /* base styles */
 @font-face {
   font-family: 'Perfect DOS VGA 437';
-  src: url('Perfect DOS VGA 437.ttf') format('truetype');
+  src: url('./assets/fonts/Perfect\ DOS\ VGA\ 437.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }

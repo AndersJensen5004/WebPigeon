@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import checkmark from "./checkmark.png";
-import restrictmark from "./restrictmark.png";
+import checkmark from "../../assets/images/checkmark.png";
+import restrictmark from "../../assets/images/restrictmark.png";
 
 const CreateAccount = () => {
 
