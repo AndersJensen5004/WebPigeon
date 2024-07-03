@@ -1,0 +1,53 @@
+/* home page */
+.messenger-title{
+    display: flex;
+    align-items: center;
+    background: rgb(0,50,129);
+    background: linear-gradient(90deg, rgba(0,50,129,1) 0%, rgba(0,178,214,1) 100%);
+    width: 100%;
+    height: 2rem;
+    margin-bottom: 2rem;
+  }
+  .messenger-title h1 {
+    font-size: 1.7rem;
+    color: #f8f8f8;
+    background-color: unset;
+  }
+  .messenger-title img {
+    max-height: 1.8rem;
+    margin: 0.1rem 0.5rem 0 0.4rem;
+    background-color: unset;
+  }
+  .messenger-preview {
+    max-width: 55%;
+    padding: 0.8rem 1.4rem;
+    margin: 0 auto;
+    border: 2px solid #7c7c7c;
+    border-bottom: none;
+    box-sizing: border-box;
+  }
+  .messenger-preview:last-child {
+    border-bottom: 2px solid #7c7c7c;
+  }
+  .messenger-preview:hover,
+  .messenger-preview:hover * {
+    background: #b9d9ff;
+  }
+  .messenger-preview:hover .messenger-preview-arrow {
+    opacity: 1;
+  }
+  .messenger-preview h2{
+    font-size: 20px;
+    color: #003bcf;
+    margin-bottom: 8px;
+  }
+  .messenger-preview a{
+    display: flex;
+    text-decoration: none;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .messenger-preview-arrow {
+    transform: rotate(90deg);
+    opacity: 0;
+  }

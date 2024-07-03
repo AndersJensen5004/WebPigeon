@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import MessengerList from "./MessengerList";
 import axios from 'axios';
 import folder from "../../assets/images/folder.png";
-
+import "./Home.css";
 
 const Home = () => {
     const [messengers, setMessengers] = useState(null);

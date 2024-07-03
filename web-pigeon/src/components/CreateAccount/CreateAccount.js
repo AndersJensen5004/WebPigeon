@@ -78,7 +78,7 @@ const CreateAccount = () => {
                     value = {confirmedPassword}
                     onChange = {(e) => setConfirmedPassword(e.target.value)}
                 />
-            <button>
+            <button className="retro-button">
                 Create Account
                 <img src={isFormValid ? checkmark : restrictmark} alt="status mark" />
                 </button>    

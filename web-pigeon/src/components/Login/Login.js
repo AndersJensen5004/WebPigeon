@@ -4,6 +4,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import axios from "axios";
 import checkmark from "../../assets/images/checkmark.png";
 import restrictmark from "../../assets/images/restrictmark.png";
+import "./Login.css";
 
 const Login = () => {
 
@@ -37,7 +38,7 @@ const Login = () => {
             <h2>Welcome!</h2>
             <span>
                 <h3>If you haven't already...</h3>
-                <button onClick={()=> {navigate('/createaccount')}}>Create Account</button>
+                <button className="retro-button" onClick={()=> {navigate('/createaccount')}}>Create Account</button>
             </span>
             {error && <p className="error">{error}</p>}    
             <form onSubmit={handleSubmit}>
@@ -55,7 +56,7 @@ const Login = () => {
                     value = {password}
                     onChange = {(e) => setPassword(e.target.value)}
                 />
-            <button>
+            <button className="retro-button">
                 Login
                 <img src={username !== '' && password !== '' ? checkmark : restrictmark} alt="status mark" />
             </button>    

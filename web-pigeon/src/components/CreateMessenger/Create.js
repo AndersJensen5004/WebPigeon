@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../contexts/AuthContext';
 import axios from 'axios';
+import "./CreateMessenger.css";
 
 const Create = () => {
     const [title, setTitle] = useState('');
@@ -39,28 +40,53 @@ const Create = () => {
         }
     }
 
+    const handleClose = () => {
+        navigate('/');
+    }
+
     return (
-        <div className="create">
-            <h2>Add a new messenger</h2>
-            {error && <div className="error">{error}</div>}
-            <form onSubmit={handleSubmit}>
-                <label>Messenger Title:</label>
-                <input
-                    type="text"
-                    required
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-                <label>Messenger Description:</label>
-                <textarea
-                    required
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                ></textarea>
-                <p>Creator: {user ? user.username : 'Not logged in'}</p>
-                { !isPending && <button>Add Messenger</button> }
-                { isPending && <button disabled>Loading...</button> }
-            </form>
+        <div className="create-messenger">
+            <div className="title-bar">
+                <div className="title-bar-text">Create Messenger</div>
+                <div className="title-bar-controls">
+                    <button className="close-button" aria-label="Close" onClick={handleClose}></button>
+                </div>
+            </div>
+            <div className="window-body">
+                {error && <div className="error-box">{error}</div>}
+                <form onSubmit={handleSubmit}>
+                    <div className="field-row">
+                        <label htmlFor="title">Messenger Title:</label>
+                        <input
+                            type="text"
+                            id="title"
+                            required
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
+                    </div>
+                    <div className="field-row">
+                        <label htmlFor="description">Messenger Description:</label>
+                        <textarea
+                            id="description"
+                            required
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            maxLength={1000}
+                        ></textarea>
+                        <div className="char-count">{description.length} / 1000</div>
+                    </div>
+                    <div className="field-row">
+                        <label>Creator:</label>
+                        <span>{user ? user.username : 'Not logged in'}</span>
+                    </div>
+                    <div className="field-row">
+                        <button type="submit" className="retro-button" disabled={isPending}>
+                            {!isPending ? 'Add Messenger' : 'Loading...'}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }
