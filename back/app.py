@@ -38,7 +38,9 @@ def create_account():
     new_user = {
         "username": username,
         "password": hashed_password,
-        "created_at": datetime.now(timezone.utc)
+        "created_at": datetime.now(timezone.utc),
+        "profile_photo": None,  # Default to None, can be updated later
+        "last_online": datetime.now(timezone.utc)  # Set initial last online time
     }
 
     # Insert the new user into the database
@@ -107,6 +109,22 @@ def delete_messenger(id):
     messengers_collection.delete_one({'_id': ObjectId(id)})
     messages_collection.delete_many({'messenger_id': id})
     return '', 204
+
+###################################
+# Profile
+###################################
+@app.route('/profile/<username>', methods=['GET'])
+def get_profile(username):
+    user = users_collection.find_one({"username": username})
+    if user:
+        return jsonify({
+            "username": user['username'],
+            "profile_photo": user['profile_photo'],
+            "last_online": user['last_online'].isoformat(),
+            "created_at": user['created_at'].isoformat()
+        }), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)

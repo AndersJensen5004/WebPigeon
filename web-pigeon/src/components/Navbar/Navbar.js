@@ -36,6 +36,9 @@ const Navbar = () => {
                 <Link className="link retro-button" to="/search"><span className="underline">F</span>ind</Link>
                 <Link className="link retro-button" to="/create"><span className="underline">C</span>reate</Link>
                 {user ? (
+                    <Link className="link retro-button" to={`/profile/${user.username}`}><span className="underline">P</span>rofile</Link>
+                ): null}
+                {user ? (
                     <button className="link retro-button" onClick={handleLogout}><span className="underline">L</span>ogout</button>
                 ) : (
                     <Link className="link retro-button" to="/login"><span className="underline">L</span>ogin</Link>

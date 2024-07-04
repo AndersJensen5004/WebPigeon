@@ -7,6 +7,7 @@ import Login from './components/Login/Login.js';
 import MessengerDetails from './components/MessengerDetails/MessengerDetails.js';
 import NotFound from './components/NotFound/NotFount.js';
 import CreateAccount from './components/CreateAccount/CreateAccount.js';
+import Profile from './components/Profile/Profile.js';
 
 function App() {
   return (
@@ -30,6 +31,9 @@ function App() {
             </Route>
             <Route exact path="/messengers/:id" element=
               {<MessengerDetails/>}>
+            </Route>
+            <Route exact path="/profile/:username" element=
+              {<Profile/>}>
             </Route>
             <Route path="*" element=
               {<NotFound/>}>
