@@ -36,7 +36,7 @@ const Navbar = () => {
                 <Link className="link retro-button" to="/search"><span className="underline">F</span>ind</Link>
                 <Link className="link retro-button" to="/create"><span className="underline">C</span>reate</Link>
                 {user ? (
-                    <button className="link" onClick={handleLogout}><span className="underline">L</span>ogout</button>
+                    <button className="link retro-button" onClick={handleLogout}><span className="underline">L</span>ogout</button>
                 ) : (
                     <Link className="link retro-button" to="/login"><span className="underline">L</span>ogin</Link>
                 )}

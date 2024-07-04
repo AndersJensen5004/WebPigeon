@@ -1,13 +1,11 @@
 .create-messenger {
-  width: 60%;
+  width: 55%;
   min-width: 20rem;
-  height: 25rem;
   margin: 2rem auto;
   background-color: #c0c0c0;
   border: 0.125rem solid;
   border-color: #ffffff #808080 #808080 #ffffff;
   box-shadow: 0.0625rem 0.0625rem 0 #000000;
-  font-family: 'MS Sans Serif', Arial, sans-serif;
   font-size: 0.75rem;
 }
 
@@ -67,6 +65,12 @@
   display: flex;
   margin-bottom: 0.75rem;
 }
+.field-row:last-child{
+  justify-content: center;
+}
+.field-row:last-child button{
+  font-size: 1.2rem;
+}
 
 .field-row label {
   font-size: 0.9rem;
@@ -79,23 +83,25 @@
   border: 0.125rem inset #ffffff;
   background-color: #ffffff;
   padding: 0.1875rem;
-  font-family: 'MS Sans Serif', Arial, sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
 }
 
 .field-row textarea {
-  height: 7.5rem;
+  height: 13.5rem;
   resize: vertical;
+}
+
+.field-row .messenger-creator{
+  font-size: 1rem;
+  font-weight: bold;
+  color: #d54545;
 }
 
 .char-count {
   font-size: 0.625rem;
   color: #808080;
   text-align: right;
-  margin-top: 0.1875rem;
+  margin-top: 0.2rem;
+  margin-left: 0.5rem;
 }
 
-.retro-button:disabled {
-  color: #808080;
-  text-shadow: 0.0625rem 0.0625rem #ffffff;
-}

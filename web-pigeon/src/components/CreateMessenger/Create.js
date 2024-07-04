@@ -63,7 +63,9 @@ const Create = () => {
                             required
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
+                            maxLength={100}
                         />
+                        <div className="char-count">{title.length} / 100</div>
                     </div>
                     <div className="field-row">
                         <label htmlFor="description">Messenger Description:</label>
@@ -78,7 +80,7 @@ const Create = () => {
                     </div>
                     <div className="field-row">
                         <label>Creator:</label>
-                        <span>{user ? user.username : 'Not logged in'}</span>
+                        <span className="messenger-creator">{user ? user.username : 'Not logged in'}</span>
                     </div>
                     <div className="field-row">
                         <button type="submit" className="retro-button" disabled={isPending}>

@@ -13,6 +13,7 @@ const MessengerDetails = () => {
     const [isPending, setIsPending] = useState(true);
     const [isSending, setIsSending] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showDescription, setShowDescription] = useState(false);
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
 
@@ -77,6 +78,10 @@ const MessengerDetails = () => {
         }
     };
 
+    const toggleDescription = () => {
+        setShowDescription(!showDescription);
+    };
+
     return ( 
         <div className="messenger-details terminal-interface">
             { isPending && <div className="loading">Loading...</div> }
@@ -87,6 +92,14 @@ const MessengerDetails = () => {
                         <div>
                             <h2>MESSENGER: {messenger.title}</h2>
                             <p>CREATOR: {messenger.creator}</p>
+                            <button onClick={toggleDescription} className="description-toggle">
+                                {showDescription ? "HIDE DESCRIPTION" : "SHOW DESCRIPTION"}
+                            </button>
+                            {showDescription && (
+                                <div className="description">
+                                    <p>{messenger.description}</p>
+                                </div>
+                            )}
                         </div>
                         {user && user.username === messenger.creator && (
                             <button onClick={handleDeleteClick} className="delete-btn">DELETE</button>

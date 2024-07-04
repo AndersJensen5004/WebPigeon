@@ -1,54 +1,86 @@
 /* messenger details page */
 .messenger-details.terminal-interface {
-    font-family: 'Perfect DOS VGA 437', 'Courier New', monospace;
-    background-color: #e4e4e4;
-    color: #2b2b2b;
-    height: calc(100vh - 7rem);
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    box-sizing: border-box;
-    margin-top: 7rem;
-    border: 2px solid #7c7c7c;
-  }
-  
-  .messenger-details.terminal-interface * {
-    background-color: #e4e4e4;
-    color: #2b2b2b;
-  }
-  
-  .terminal-header {
-    border-bottom: 1px solid #7c7c7c;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .terminal-header h2 {
-    font-size: 1.5em;
-    margin: 0;
-  }
-  
-  .terminal-header p {
-    font-size: 1em;
-    margin: 0;
-  }
-  
-  .delete-btn {
-    background: #e4e4e4;
-    border-bottom: 3px inset rgba(0,0,0,.9);
-    border-right: 3px inset rgba(0,0,0,.9);
-    border-left: 3px inset rgba(255,255,255,.9);
-    border-top: 3px inset rgba(255,255,255,.9);
-    box-sizing: border-box;
-    color: #0f0f0f;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    padding: 5px 10px;
-  }
+  font-family: 'Perfect DOS VGA 437', 'Courier New', monospace;
+  background-color: #e4e4e4;
+  color: #2b2b2b;
+  height: calc(100vh - 7rem);
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  box-sizing: border-box;
+  margin-top: 2rem;
+  border: 0.125rem solid #7c7c7c;
+}
+
+.messenger-details.terminal-interface * {
+  background-color: #e4e4e4;
+  color: #2b2b2b;
+}
+
+.terminal-header {
+  border-bottom: 0.0625rem solid #7c7c7c;
+  padding-bottom: 0.625rem;
+  margin-bottom: 0.625rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.terminal-header h2 {
+  font-size: 1.5em;
+  margin: 0 0 0.5em 0;
+}
+
+.terminal-header p {
+  font-size: 1em;
+  margin: 0 0 0.5em 0;
+}
+
+.description-toggle {
+  background: #e4e4e4;
+  border-bottom: 0.1875rem inset rgba(0,0,0,.9);
+  border-right: 0.1875rem inset rgba(0,0,0,.9);
+  border-left: 0.1875rem inset rgba(255,255,255,.9);
+  border-top: 0.1875rem inset rgba(255,255,255,.9);
+  box-sizing: border-box;
+  color: #0f0f0f;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 0.3125rem 0.625rem;
+  margin-bottom: 0.5em;
+}
+
+.description-toggle:hover {
+  color: #003bcf;
+  background: #f1f1f1;
+}
+
+.description-toggle:active {
+  background: #999999;
+}
+
+.description {
+  border: 0.0625rem solid #7c7c7c;
+  padding: 0.625rem;
+  margin-top: 0.5em;
+  max-height: 10em;
+  overflow-y: auto;
+}
+
+.delete-btn {
+  background: #e4e4e4;
+  border-bottom: 0.1875rem inset rgba(0,0,0,.9);
+  border-right: 0.1875rem inset rgba(0,0,0,.9);
+  border-left: 0.1875rem inset rgba(255,255,255,.9);
+  border-top: 0.1875rem inset rgba(255,255,255,.9);
+  box-sizing: border-box;
+  color: #0f0f0f;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 0.3125rem 0.625rem;
+}
   
   .delete-btn:hover {
     color: #003bcf;
