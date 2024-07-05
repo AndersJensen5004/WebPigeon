@@ -9,7 +9,7 @@ import "./Navbar.css";
 
 const Navbar = () => {
 
-    const { user, logout } = useContext(AuthContext);
+    const { currentUser: user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleLogout = () => {

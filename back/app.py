@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 import bcrypt
 from datetime import datetime, timezone
+from typing import List
 import re
 
 
@@ -40,7 +41,8 @@ def create_account():
         "password": hashed_password,
         "created_at": datetime.now(timezone.utc),
         "profile_photo": None,  # Default to None, can be updated later
-        "last_online": datetime.now(timezone.utc)  # Set initial last online time
+        "last_online": datetime.now(timezone.utc),  # Set initial last online time
+        "previous_usernames": []
     }
 
     # Insert the new user into the database
@@ -121,10 +123,49 @@ def get_profile(username):
             "username": user['username'],
             "profile_photo": user['profile_photo'],
             "last_online": user['last_online'].isoformat(),
-            "created_at": user['created_at'].isoformat()
+            "created_at": user['created_at'].isoformat(),
+            "previous_usernames": user.get('previous_usernames', [])
         }), 200
     else:
         return jsonify({"error": "User not found"}), 404
+
+@app.route('/profile/<username>/edit', methods=['PUT'])
+def edit_profile(username):
+    data = request.json
+    user = users_collection.find_one({"username": username})
+    
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    updates = {}
+    
+    if 'new_username' in data:
+        new_username = data['new_username']
+        if users_collection.find_one({"username": new_username}):
+            return jsonify({"error": "Username already exists"}), 400
+        
+        # Add the old username to previous_usernames
+        previous_usernames = user.get('previous_usernames', [])
+        previous_usernames.append({
+            "username": user['username'],
+            "changed_at": datetime.now(timezone.utc)
+        })
+        
+        updates['username'] = new_username
+        updates['previous_usernames'] = previous_usernames
+
+    if 'new_password' in data:
+        hashed_password = bcrypt.hashpw(data['new_password'].encode('utf-8'), bcrypt.gensalt())
+        updates['password'] = hashed_password
+
+    if 'profile_photo' in data:
+        updates['profile_photo'] = data['profile_photo']
+
+    if updates:
+        users_collection.update_one({"_id": user['_id']}, {"$set": updates})
+        return jsonify({"message": "Profile updated successfully"}), 200
+    else:
+        return jsonify({"message": "No changes made"}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

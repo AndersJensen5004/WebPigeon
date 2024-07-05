@@ -8,6 +8,8 @@ import MessengerDetails from './components/MessengerDetails/MessengerDetails.js'
 import NotFound from './components/NotFound/NotFount.js';
 import CreateAccount from './components/CreateAccount/CreateAccount.js';
 import Profile from './components/Profile/Profile.js';
+import EditProfile from './components/Profile/EditProfile.js';
+
 
 function App() {
   return (
@@ -34,6 +36,9 @@ function App() {
             </Route>
             <Route exact path="/profile/:username" element=
               {<Profile/>}>
+            </Route>
+            <Route exact path="/profile/:username/edit" element=
+              {<EditProfile/>}>
             </Route>
             <Route path="*" element=
               {<NotFound/>}>

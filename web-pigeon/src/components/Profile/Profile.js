@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../contexts/AuthContext';
 import "./Profile.css";
 
 const Profile = () => {
     const { username } = useParams();
     const [profile, setProfile] = useState(null);
     const [error, setError] = useState(null);
+    const { currentUser } = useAuth();
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -46,7 +48,24 @@ const Profile = () => {
             <div className="profile-info">
                 <p>Last online: {new Date(profile.last_online).toLocaleString()}</p>
                 <p>Member since: {new Date(profile.created_at).toLocaleDateString()}</p>
+                {profile.previous_usernames && profile.previous_usernames.length > 0 && (
+                    <div className="previous-usernames">
+                        <h3>Previously known as:</h3>
+                        <ul>
+                            {profile.previous_usernames.map((prev, index) => (
+                                <li key={index}>
+                                    {prev.username} (changed on {new Date(prev.changed_at).toLocaleDateString()})
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
+            {currentUser && currentUser.username === username && (
+                <Link to={`/profile/${username}/edit`} className="edit-profile-button">
+                    Edit Profile
+                </Link>
+            )}
         </div>
     );
 }

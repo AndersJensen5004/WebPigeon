@@ -11,7 +11,7 @@ const Create = () => {
     const [error, setError] = useState(null);
 
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
+    const { currentUser: user } = useContext(AuthContext);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

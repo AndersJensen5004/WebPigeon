@@ -1,7 +1,8 @@
 import { useState, useEffect, useContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { AuthContext } from '../../contexts/AuthContext';
 import axios from 'axios';
+import defaultProfilePicture from "../../assets/images//default-profile.png";
 import "./MessengerDetails.css";
 
 const MessengerDetails = () => {
@@ -15,7 +16,7 @@ const MessengerDetails = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showDescription, setShowDescription] = useState(false);
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
+    const { currentUser: user } = useContext(AuthContext);
 
     const MAX_CHARACTERS = 1000;
 
@@ -109,9 +110,18 @@ const MessengerDetails = () => {
                         <div className="messages">
                             {messenger.messages && messenger.messages.map(message => (
                                 <div key={message._id} className="message">
-                                    <span className="timestamp">[{new Date(message.timestamp).toLocaleString()}]</span>
-                                    <span className="username">{message.username}:</span>
-                                    <span className="message-content">{message.content}</span>
+                                    <img 
+                                        src={message.profilePhoto || defaultProfilePicture} 
+                                        alt={`${message.username}'s profile`} 
+                                        className="profile-pic"
+                                    />
+                                    <div className="message-content">
+                                        <div className="message-header">
+                                            <Link to={`/profile/${message.username}`} className="username">{message.username}</Link>
+                                            <span className="timestamp">[{new Date(message.timestamp).toLocaleString()}]</span>
+                                        </div>
+                                        <span className="message-text">{message.content}</span>
+                                    </div>
                                 </div>
                             ))}
                         </div>

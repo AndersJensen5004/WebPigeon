@@ -124,21 +124,55 @@
   }
   
   .terminal-interface .message {
-    margin-bottom: 10px;
+    display: flex;
+    margin-bottom: 1rem;
     line-height: 1.4;
-  }
-  
-  .terminal-interface .timestamp {
-    color: #666;
-    margin-right: 10px;
-  }
-  
-  .terminal-interface .username {
+}
+
+.terminal-interface .profile-pic {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.5rem;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    flex-shrink: 0; 
+}
+
+.terminal-interface .message-content {
+    flex: 1;
+    min-width: 0; 
+}
+
+.terminal-interface .message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.25rem;
+}
+
+.terminal-interface .username {
     color: #003bcf;
-    margin-right: 10px;
     font-weight: bold;
-  }
-  
+    text-decoration: none;
+}
+
+.terminal-interface .username:hover {
+    text-decoration: underline;
+}
+
+.terminal-interface .timestamp {
+    color: #666;
+    font-size: 0.8em;
+    white-space: nowrap;
+}
+
+.terminal-interface .message-text {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap; 
+    max-width: 100%; 
+}
   .terminal-footer {
     border-top: 1px solid #7c7c7c;
     padding-top: 10px;
