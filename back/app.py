@@ -27,17 +27,20 @@ def create_account():
     if not re.match(r'^[a-zA-Z0-9_]+$', username):
         return jsonify({"error": "Username can only contain letters, numbers, and underscores"}), 400
 
+    # Convert username to lowercase for case-insensitive comparison
+    lowercase_username = username.lower()
 
-    # Check if username already exists
-    if users_collection.find_one({"username": username}):
+    # Check if username already exists (case-insensitive)
+    if users_collection.find_one({"username_lower": lowercase_username}):
         return jsonify({"error": "Username already exists"}), 400
 
-    # Hash
+    # Hash password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     # Create new user document
     new_user = {
         "username": username,
+        "username_lower": lowercase_username,  # Store lowercase version for searching
         "password": hashed_password,
         "created_at": datetime.now(timezone.utc),
         "profile_photo": None,  # Default to None, can be updated later
@@ -58,13 +61,18 @@ def login():
 
     user = users_collection.find_one({"username": username})
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+        # Update last_online timestamp
+        users_collection.update_one(
+            {"username": username},
+            {"$set": {"last_online": datetime.now(timezone.utc)}}
+        )
         return jsonify({
             "message": "Login successful",
             "username": username,
             # You might want to include other non-sensitive user data here
         }), 200
     else:
-        return jsonify({"error": "Invalid username or password"}), 4011
+        return jsonify({"error": "Invalid username or password"}), 401
     
     
     
@@ -103,6 +111,17 @@ def create_messenger():
 def add_message(id):
     data = request.json
     data['messenger_id'] = id
+    
+    # Assuming the message data includes the username of the sender
+    sender_username = data.get('username')
+    
+    # Update last_online for the sender
+    if sender_username:
+        users_collection.update_one(
+            {"username": sender_username},
+            {"$set": {"last_online": datetime.now(timezone.utc)}}
+        )
+    
     result = messages_collection.insert_one(data)
     return jsonify({'id': str(result.inserted_id)}), 201
 

@@ -62,7 +62,7 @@ const Profile = () => {
                 )}
             </div>
             {currentUser && currentUser.username === username && (
-                <Link to={`/profile/${username}/edit`} className="edit-profile-button">
+                <Link to={`/profile/${username}/edit`} className="edit-profile-button retro-button">
                     Edit Profile
                 </Link>
             )}

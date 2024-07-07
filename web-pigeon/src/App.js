@@ -9,7 +9,9 @@ import NotFound from './components/NotFound/NotFount.js';
 import CreateAccount from './components/CreateAccount/CreateAccount.js';
 import Profile from './components/Profile/Profile.js';
 import EditProfile from './components/Profile/EditProfile.js';
-
+import EditUsername from './components/Profile/EditUsername.js';
+import EditPassword from './components/Profile/EditPassword.js';
+import EditProfilePhoto from './components/Profile/EditProfilePhoto.js';
 
 function App() {
   return (
@@ -19,30 +21,17 @@ function App() {
         <Navbar />
         <div className="content">
           <Routes>
-            <Route exact path="/" element=
-              {<Home />}>
-            </Route>
-            <Route exact path="/create" element=
-              {<Create />}>
-            </Route>
-            <Route exact path="/login" element=
-              {<Login />}>
-            </Route>
-            <Route exact path="/createaccount" element=
-              {<CreateAccount />}>
-            </Route>
-            <Route exact path="/messengers/:id" element=
-              {<MessengerDetails/>}>
-            </Route>
-            <Route exact path="/profile/:username" element=
-              {<Profile/>}>
-            </Route>
-            <Route exact path="/profile/:username/edit" element=
-              {<EditProfile/>}>
-            </Route>
-            <Route path="*" element=
-              {<NotFound/>}>
-            </Route>
+            <Route exact path="/" element={<Home />} />
+            <Route exact path="/create" element={<Create />} />
+            <Route exact path="/login" element={<Login />} />
+            <Route exact path="/createaccount" element={<CreateAccount />} />
+            <Route exact path="/messengers/:id" element={<MessengerDetails/>} />
+            <Route exact path="/profile/:username" element={<Profile/>} />
+            <Route exact path="/profile/:username/edit" element={<EditProfile/>} />
+            <Route exact path="/profile/:username/edit/username" element={<EditUsername/>} />
+            <Route exact path="/profile/:username/edit/password" element={<EditPassword/>} />
+            <Route exact path="/profile/:username/edit/photo" element={<EditProfilePhoto/>} />
+            <Route path="*" element={<NotFound/>} />
           </Routes>
         </div>
       </div>
