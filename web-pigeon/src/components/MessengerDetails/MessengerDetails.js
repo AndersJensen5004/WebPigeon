@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { AuthContext } from '../../contexts/AuthContext';
+import config from '../../config';
 import axios from 'axios';
 import defaultProfilePicture from "../../assets/images//default-profile.png";
 import "./MessengerDetails.css";
@@ -23,7 +24,7 @@ const MessengerDetails = () => {
     useEffect(() => {
         const fetchMessenger = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/messengers/${id}`);
+                const response = await axios.get(`${config.apiBaseUrl}/messengers/${id}`);
                 setMessenger(response.data);
                 setIsPending(false);
             } catch (err) {
@@ -40,7 +41,7 @@ const MessengerDetails = () => {
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`http://localhost:5000/messengers/${id}`);
+            await axios.delete(`${config.apiBaseUrl}/messengers/${id}`);
             navigate('/');
         } catch (err) {
             setError(err.message);
@@ -63,12 +64,12 @@ const MessengerDetails = () => {
         }
         setIsSending(true);
         try {
-            await axios.post(`http://localhost:5000/messengers/${id}/messages`, {
+            await axios.post(`${config.apiBaseUrl}/messengers/${id}/messages`, {
                 content: newMessage,
                 username: user.username,
                 timestamp: new Date().toISOString()
             });
-            const response = await axios.get(`http://localhost:5000/messengers/${id}`);
+            const response = await axios.get(`${config.apiBaseUrl}/messengers/${id}`);
             setMessenger(response.data);
             setNewMessage('');
             setError(null);

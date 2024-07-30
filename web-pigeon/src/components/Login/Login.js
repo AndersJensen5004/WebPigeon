@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../contexts/AuthContext';
+import config from '../../config';
 import axios from "axios";
 import checkmark from "../../assets/images/checkmark.png";
 import restrictmark from "../../assets/images/restrictmark.png";
@@ -21,7 +22,7 @@ const Login = () => {
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:5000/login', {
+            const response = await axios.post(`${config.apiBaseUrl}/login`, {
                 username,
                 password
             });

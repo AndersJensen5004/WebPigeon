@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import config from '../../config';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
 import "./EditProfile.css";
@@ -23,7 +24,7 @@ const EditUsername = () => {
         }
 
         try {
-            const response = await axios.put(`http://localhost:5000/profile/${username}/edit`, {
+            const response = await axios.put(`${config.apiBaseUrl}/profile/${username}/edit`, {
                 current_password: currentPassword,
                 new_username: newUsername
             });
@@ -69,7 +70,7 @@ const EditUsername = () => {
                         required
                     />
                 </div>
-                <button type="submit">Update Username</button>
+                <button className="retro-button" type="submit">Update Username</button>
             </form>
         </div>
     );

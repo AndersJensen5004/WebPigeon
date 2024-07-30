@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import config from '../../config';
 import axios from 'axios';
 import "./EditProfile.css";
 
@@ -15,7 +16,7 @@ const EditProfilePhoto = () => {
         setError('');
 
         try {
-            const response = await axios.put(`http://localhost:5000/profile/${username}/edit`, {
+            const response = await axios.put(`${config.apiBaseUrl}/profile/${username}/edit`, {
                 current_password: currentPassword,
                 profile_photo: newProfilePhoto
             });
@@ -51,7 +52,7 @@ const EditProfilePhoto = () => {
                         required
                     />
                 </div>
-                <button type="submit">Update Profile Picture</button>
+                <button className="retro-button" type="submit">Update Profile Picture</button>
             </form>
         </div>
     );

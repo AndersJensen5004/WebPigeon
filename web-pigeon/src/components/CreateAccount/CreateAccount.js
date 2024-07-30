@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import config from '../../config';
 import axios from "axios";
 import checkmark from "../../assets/images/checkmark.png";
 import restrictmark from "../../assets/images/restrictmark.png";
@@ -33,7 +34,7 @@ const CreateAccount = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/create_account', {
+            const response = await axios.post(`${config.apiBaseUrl}/create_account`, {
                 username,
                 password
             });
