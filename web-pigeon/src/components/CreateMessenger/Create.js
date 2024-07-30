@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../contexts/AuthContext';
+import config from '../../config';
 import axios from 'axios';
 import "./CreateMessenger.css";
 
@@ -30,7 +31,7 @@ const Create = () => {
         setIsPending(true);
 
         try {
-            await axios.post('http://localhost:5000/messengers', messenger);
+            await axios.post(`${config.apiBaseUrl}/messengers`, messenger);
             console.log('New messenger added');
             setIsPending(false);
             navigate('/');

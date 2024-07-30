@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import config from '../../config';
 import axios from 'axios';
 import "./EditProfile.css";
 
@@ -21,7 +22,7 @@ const EditPassword = () => {
         }
 
         try {
-            const response = await axios.put(`http://localhost:5000/profile/${username}/edit`, {
+            const response = await axios.put(`${config.apiBaseUrl}/profile/${username}/edit`, {
                 current_password: currentPassword,
                 new_password: newPassword
             });

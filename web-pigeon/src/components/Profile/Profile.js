@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import config from '../../config';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
 import "./Profile.css";
@@ -13,7 +14,7 @@ const Profile = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/profile/${username}`);
+                const response = await axios.get(`${config.apiBaseUrl}/profile/${username}`);
                 setProfile(response.data);
             } catch (err) {
                 setError(err.response?.data?.error || 'An error occurred');

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import MessengerList from "./MessengerList";
+import config from '../../config';
 import axios from 'axios';
 import folder from "../../assets/images/folder.png";
 import "./Home.css";
@@ -12,7 +13,7 @@ const Home = () => {
     useEffect(() => {
         const fetchMessengers = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/messengers');
+                const response = await axios.get(`${config.apiBaseUrl}/messengers`);
                 setMessengers(response.data);
                 setIsPending(false);
             } catch (err) {
