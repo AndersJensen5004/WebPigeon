@@ -111,11 +111,11 @@ const MessengerDetails = () => {
                         <div className="messages">
                             {messenger.messages && messenger.messages.map(message => (
                                 <div key={message._id} className="message">
-                                    <img 
-                                        src={message.profilePhoto || defaultProfilePicture} 
-                                        alt={`${message.username}'s profile`} 
-                                        className="profile-pic"
-                                    />
+                                        <img 
+                                            src={message.profile_photo || defaultProfilePicture} 
+                                            alt={`${message.username}'s profile`} 
+                                            className="profile-pic"
+                                        />
                                     <div className="message-content">
                                         <div className="message-header">
                                             <Link to={`/profile/${message.username}`} className="username">{message.username}</Link>

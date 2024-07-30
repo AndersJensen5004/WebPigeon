@@ -94,8 +94,18 @@ def get_messenger(id):
     if messenger:
         messenger['_id'] = str(messenger['_id'])
         messages = list(messages_collection.find({'messenger_id': id}))
+        
+        # Get unique usernames from messages
+        unique_usernames = set(message['username'] for message in messages)
+        
+        # Fetch user data for all unique users at once
+        users = {user['username']: user.get('profile_photo') 
+                 for user in users_collection.find({'username': {'$in': list(unique_usernames)}})}
+        
         for message in messages:
             message['_id'] = str(message['_id'])
+            message['profile_photo'] = users.get(message['username'])
+        
         messenger['messages'] = messages
         return jsonify(messenger)
     return jsonify({'error': 'Messenger not found'}), 404
