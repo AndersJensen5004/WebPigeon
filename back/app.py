@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 from typing import List
 import re
 
-
 app = Flask(__name__)
 CORS(app)
 
