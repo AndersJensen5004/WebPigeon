@@ -1,12 +1,11 @@
 import React from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link} from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import "./EditProfile.css";
 
 const EditProfile = () => {
     const { username } = useParams();
     const { currentUser } = useAuth();
-    const navigate = useNavigate();
 
     if (currentUser.username !== username) {
         return <div className="error">You don't have permission to edit this profile</div>;
