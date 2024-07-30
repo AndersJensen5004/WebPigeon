@@ -44,6 +44,23 @@ const Create = () => {
         navigate('/');
     }
 
+    const validateForm = (e) => {
+        e.preventDefault();
+        let isValid = true;
+        const inputs = e.target.querySelectorAll('input[required], textarea[required]');
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                isValid = false;
+                input.classList.add('invalid');
+            } else {
+                input.classList.remove('invalid');
+            }
+        });
+        if (isValid) {
+            handleSubmit(e);
+        }
+    };
+
     return (
         <div className="create-messenger">
             <div className="title-bar">
@@ -54,7 +71,7 @@ const Create = () => {
             </div>
             <div className="window-body">
                 {error && <div className="error-box">{error}</div>}
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={validateForm} noValidate>
                     <div className="field-row">
                         <label htmlFor="title">Messenger Title:</label>
                         <input

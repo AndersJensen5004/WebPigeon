@@ -51,7 +51,7 @@ const EditProfilePhoto = () => {
                         required
                     />
                 </div>
-                <button type="submit">Update Profile Picture</button>
+                <button className="retro-button" type="submit">Update Profile Picture</button>
             </form>
         </div>
     );

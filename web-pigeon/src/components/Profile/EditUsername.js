@@ -69,7 +69,7 @@ const EditUsername = () => {
                         required
                     />
                 </div>
-                <button type="submit">Update Username</button>
+                <button className="retro-button" type="submit">Update Username</button>
             </form>
         </div>
     );

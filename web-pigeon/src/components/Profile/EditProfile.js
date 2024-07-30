@@ -19,13 +19,13 @@ const EditProfile = () => {
                 <div className="title-bar-text">Edit Profile</div>
             </div>
             <div className="edit-profile-options">
-                <Link to={`/profile/${username}/edit/username`} className="edit-button">
+                <Link to={`/profile/${username}/edit/username`} className="edit-button retro-button">
                     Change Username
                 </Link>
-                <Link to={`/profile/${username}/edit/password`} className="edit-button">
+                <Link to={`/profile/${username}/edit/password`} className="edit-button retro-button">
                     Change Password
                 </Link>
-                <Link to={`/profile/${username}/edit/photo`} className="edit-button">
+                <Link to={`/profile/${username}/edit/photo`} className="edit-button retro-button">
                     Change Profile Picture
                 </Link>
             </div>

@@ -66,7 +66,7 @@ const EditPassword = () => {
                         required
                     />
                 </div>
-                <button type="submit">Update Password</button>
+                <button className="retro-button" type="submit">Update Password</button>
             </form>
         </div>
     );
