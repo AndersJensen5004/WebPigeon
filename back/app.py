@@ -95,8 +95,16 @@ messages_collection = db['messages']
 @app.route('/messengers', methods=['GET'])
 def get_messengers():
     messengers = list(messengers_collection.find())
+
+    creator_ids = list(set(messenger['creator_id'] for messenger in messengers))
+
+    users = {str(user['_id']): user['username'] for user in users_collection.find({'_id': {'$in': creator_ids}})}
+
     for messenger in messengers:
         messenger['_id'] = str(messenger['_id'])
+        creator_id = str(messenger['creator_id'])
+        messenger['creator_username'] = users.get(creator_id, 'Unknown')
+
     return jsonify(messengers)
 
 @app.route('/messengers/<id>', methods=['GET'])

@@ -93,7 +93,7 @@ const MessengerDetails = () => {
                     <div className="terminal-header">
                         <div>
                             <h2>MESSENGER: {messenger.title}</h2>
-                            <p>CREATOR: {messenger.creator}</p>
+                            <p>CREATOR: {messenger.creator_username}</p>
                             <button onClick={toggleDescription} className="description-toggle">
                                 {showDescription ? "HIDE DESCRIPTION" : "SHOW DESCRIPTION"}
                             </button>
@@ -103,7 +103,7 @@ const MessengerDetails = () => {
                                 </div>
                             )}
                         </div>
-                        {user && user.username === messenger.creator && (
+                        {user && user.id === messenger.creator_id && (
                             <button onClick={handleDeleteClick} className="delete-btn">DELETE</button>
                         )}
                     </div>

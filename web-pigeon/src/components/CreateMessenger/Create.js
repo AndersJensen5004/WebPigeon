@@ -25,7 +25,7 @@ const Create = () => {
         const messenger = {
             title,
             description,
-            creator: user.username
+            creator_id: user.id 
         }
 
         setIsPending(true);
