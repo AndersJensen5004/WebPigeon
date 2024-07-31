@@ -8,7 +8,7 @@ import "./EditProfile.css";
 const EditUsername = () => {
     const { username } = useParams();
     const navigate = useNavigate();
-    const { currentUser, setCurrentUser } = useAuth();
+    const { currentUser, updateUser } = useAuth();
     const [currentPassword, setCurrentPassword] = useState('');
     const [newUsername, setNewUsername] = useState('');
     const [confirmNewUsername, setConfirmNewUsername] = useState('');
@@ -30,7 +30,7 @@ const EditUsername = () => {
             });
             
             if (response.data.message === "Profile updated successfully") {
-                setCurrentUser({ ...currentUser, username: newUsername });
+                updateUser({ username: newUsername });
                 navigate(`/profile/${newUsername}`);
             }
         } catch (err) {
