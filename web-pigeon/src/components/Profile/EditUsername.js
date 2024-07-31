@@ -8,7 +8,7 @@ import "./EditProfile.css";
 const EditUsername = () => {
     const { username } = useParams();
     const navigate = useNavigate();
-    const { currentUser, updateUser } = useAuth();
+    const { updateUser } = useAuth();
     const [currentPassword, setCurrentPassword] = useState('');
     const [newUsername, setNewUsername] = useState('');
     const [confirmNewUsername, setConfirmNewUsername] = useState('');
