@@ -103,6 +103,11 @@ def get_messengers():
 def get_messenger(id):
     messenger = messengers_collection.find_one({'_id': id})
     if messenger:
+        # Fetch the creator's username
+        creator = users_collection.find_one({'_id': messenger['creator_id']})
+        creator_username = creator['username'] if creator else 'Unknown'
+        
+        messenger['creator_username'] = creator_username
         messenger['_id'] = str(messenger['_id'])
         
         # Get the specific collection for this messenger
@@ -129,19 +134,25 @@ def get_messenger(id):
 @app.route('/messengers', methods=['POST'])
 def create_messenger():
     data = request.json
-    messenger_id = str(uuid.uuid4())  # Generate a unique ID for the messenger
-    data['_id'] = messenger_id
+    creator_id = data['creator_id']
     
-    # Create a new collection for this messenger
-    messenger_collection = messenger_data[messenger_id]
+    # Check if the user exists
+    user = users_collection.find_one({"_id": creator_id})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
     
-    # Create an index on the timestamp field for efficient querying
-    messenger_collection.create_index([("timestamp", 1)])
+    new_messenger = {
+        "_id": str(uuid.uuid4()),
+        "title": data['title'],
+        "description": data['description'],
+        "creator_id": creator_id,
+        "created_at": datetime.now(timezone.utc)
+    }
     
-    # Insert messenger data into the messengers collection
-    messengers_collection.insert_one(data)
+    # Insert the new messenger into the database
+    result = messengers_collection.insert_one(new_messenger)
     
-    return jsonify({'id': messenger_id}), 201
+    return jsonify({"message": "Messenger created successfully", "id": str(result.inserted_id)}), 201
 
 @app.route('/messengers/<id>/messages', methods=['POST'])
 def add_message(id):
