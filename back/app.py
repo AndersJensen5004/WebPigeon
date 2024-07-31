@@ -3,6 +3,7 @@ from flask_cors import CORS
 from pymongo import MongoClient
 from bson import ObjectId
 import bcrypt
+import uuid
 from datetime import datetime, timezone
 from typing import List
 import re
@@ -15,6 +16,8 @@ uri = "mongodb+srv://jensenandersp:0UFn0sgkw7Qctlf6@users.u1rsd2u.mongodb.net/?a
 client = MongoClient(uri)
 db = client['web-pigeon']
 users_collection = db['users']
+messengers_collection = db['messengers']
+messenger_data = client['messenger-data']
 
 @app.route('/create_account', methods=['POST'])
 def create_account():
@@ -35,9 +38,18 @@ def create_account():
 
     # Hash password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    
+    # Generate a new UUID
+    user_id = str(uuid.uuid4())
 
+    # Check if the generated UUID already exists
+    while users_collection.find_one({"_id": user_id}):
+        user_id = str(uuid.uuid4())
+        
+    
     # Create new user document
     new_user = {
+        "_id": user_id,
         "username": username,
         "username_lower": lowercase_username,  # Store lowercase version for searching
         "password": hashed_password,
@@ -58,17 +70,16 @@ def login():
     username = data['username']
     password = data['password']
 
-    user = users_collection.find_one({"username": username})
+    user = users_collection.find_one({"username_lower": username.lower()})
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
-        # Update last_online timestamp
         users_collection.update_one(
-            {"username": username},
+            {"_id": user['_id']},
             {"$set": {"last_online": datetime.now(timezone.utc)}}
         )
         return jsonify({
             "message": "Login successful",
-            "username": username,
-            # You might want to include other non-sensitive user data here
+            "user_id": user['_id'],
+            "username": user['username'],
         }), 200
     else:
         return jsonify({"error": "Invalid username or password"}), 401
@@ -90,10 +101,15 @@ def get_messengers():
 
 @app.route('/messengers/<id>', methods=['GET'])
 def get_messenger(id):
-    messenger = messengers_collection.find_one({'_id': ObjectId(id)})
+    messenger = messengers_collection.find_one({'_id': id})
     if messenger:
         messenger['_id'] = str(messenger['_id'])
-        messages = list(messages_collection.find({'messenger_id': id}))
+        
+        # Get the specific collection for this messenger
+        messenger_collection = messenger_data[id]
+        
+        # Fetch messages (you might want to limit this or implement pagination)
+        messages = list(messenger_collection.find().sort("timestamp", 1))
         
         # Get unique usernames from messages
         unique_usernames = set(message['username'] for message in messages)
@@ -113,31 +129,48 @@ def get_messenger(id):
 @app.route('/messengers', methods=['POST'])
 def create_messenger():
     data = request.json
-    result = messengers_collection.insert_one(data)
-    return jsonify({'id': str(result.inserted_id)}), 201
+    messenger_id = str(uuid.uuid4())  # Generate a unique ID for the messenger
+    data['_id'] = messenger_id
+    
+    # Create a new collection for this messenger
+    messenger_collection = messenger_data[messenger_id]
+    
+    # Create an index on the timestamp field for efficient querying
+    messenger_collection.create_index([("timestamp", 1)])
+    
+    # Insert messenger data into the messengers collection
+    messengers_collection.insert_one(data)
+    
+    return jsonify({'id': messenger_id}), 201
 
 @app.route('/messengers/<id>/messages', methods=['POST'])
 def add_message(id):
     data = request.json
-    data['messenger_id'] = id
+    data['timestamp'] = datetime.now(timezone.utc)
     
-    # Assuming the message data includes the username of the sender
-    sender_username = data.get('username')
+    # Get the specific collection for this messenger
+    messenger_collection = messenger_data[id]
+    
+    # Assuming the message data includes the user_id of the sender
+    sender_id = data.get('user_id')
     
     # Update last_online for the sender
-    if sender_username:
+    if sender_id:
         users_collection.update_one(
-            {"username": sender_username},
+            {"_id": sender_id},
             {"$set": {"last_online": datetime.now(timezone.utc)}}
         )
     
-    result = messages_collection.insert_one(data)
+    result = messenger_collection.insert_one(data)
     return jsonify({'id': str(result.inserted_id)}), 201
 
 @app.route('/messengers/<id>', methods=['DELETE'])
 def delete_messenger(id):
-    messengers_collection.delete_one({'_id': ObjectId(id)})
-    messages_collection.delete_many({'messenger_id': id})
+    messengers_collection.delete_one({'_id': id})
+    
+    # Drop the entire collection for this messenger
+    messenger_data.drop_collection(id)
+    
     return '', 204
 
 ###################################
@@ -145,9 +178,10 @@ def delete_messenger(id):
 ###################################
 @app.route('/profile/<username>', methods=['GET'])
 def get_profile(username):
-    user = users_collection.find_one({"username": username})
+    user = users_collection.find_one({"username_lower": username.lower()})
     if user:
         return jsonify({
+            "user_id": user['_id'],
             "username": user['username'],
             "profile_photo": user['profile_photo'],
             "last_online": user['last_online'].isoformat(),
@@ -160,7 +194,7 @@ def get_profile(username):
 @app.route('/profile/<username>/edit', methods=['PUT'])
 def edit_profile(username):
     data = request.json
-    user = users_collection.find_one({"username": username})
+    user = users_collection.find_one({"username_lower": username.lower()})
     
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -169,7 +203,7 @@ def edit_profile(username):
     
     if 'new_username' in data:
         new_username = data['new_username']
-        if users_collection.find_one({"username": new_username}):
+        if users_collection.find_one({"username_lower": new_username.lower()}):
             return jsonify({"error": "Username already exists"}), 400
         
         # Add the old username to previous_usernames
@@ -180,6 +214,7 @@ def edit_profile(username):
         })
         
         updates['username'] = new_username
+        updates['username_lower'] = new_username.lower()
         updates['previous_usernames'] = previous_usernames
 
     if 'new_password' in data:
@@ -191,9 +226,9 @@ def edit_profile(username):
 
     if updates:
         users_collection.update_one({"_id": user['_id']}, {"$set": updates})
-        return jsonify({"message": "Profile updated successfully"}), 200
+        return jsonify({"message": "Profile updated successfully", "user_id": user['_id']}), 200
     else:
-        return jsonify({"message": "No changes made"}), 200
+        return jsonify({"message": "No changes made", "user_id": user['_id']}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

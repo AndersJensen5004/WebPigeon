@@ -1,10 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate} from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import { getLatestVersion } from '../Changelog/versionInfo.js';
 import pigeonLogo from "../../assets/images/pigeon-logo.png";
 import letterLogo from "../../assets/images/letter-logo.png";
 import world from "../../assets/images/world.png";
+import directoryAdminTools from "../../assets/images/directory_admin_tools.png";
 import "./Navbar.css";
 
 
@@ -13,11 +14,16 @@ const Navbar = () => {
     const { currentUser: user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const latestVersion = getLatestVersion();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 
     const handleLogout = () => {
         logout();
         navigate('/login');
+    };
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
     };
 
 
@@ -39,15 +45,34 @@ const Navbar = () => {
                 <Link className="link retro-button" to="/search"><span className="underline">F</span>ind</Link>
                 <Link className="link retro-button" to="/create"><span className="underline">C</span>reate</Link>
                 {user ? (
-                    <Link className="link retro-button" to={`/profile/${user.username}`}><span className="underline">P</span>rofile</Link>
-                ): null}
-                {user ? (
                     <button className="link retro-button" onClick={handleLogout}><span className="underline">L</span>ogout</button>
                 ) : (
                     <Link className="link retro-button" to="/login"><span className="underline">L</span>ogin</Link>
                 )}
             </div>
         </nav>
+        <div className="footer">
+                <div className="menu-container">
+                    <button className="menu-button retro-button" onClick={toggleMenu}>
+                        <img src={directoryAdminTools} alt="Menu" />
+                        Menu
+                    </button>
+                    {isMenuOpen && (
+                        <div className="menu-dropdown">
+                            <Link to="/">Home</Link>
+                            <Link to="/search">Find</Link>
+                            <Link to="/create">Create</Link>
+                            {user && <Link to={`/profile/${user.username}`}>Profile</Link>}
+                            <Link to="/changeLog">Change Log</Link>
+                            {user ? (
+                                <button onClick={handleLogout}>Logout</button>
+                            ) : (
+                                <Link to="/login">Login</Link>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
         </>
     );
 }
