@@ -9,7 +9,7 @@ const MessengerList = ({messengers}) => {
                     <Link to={`/messengers/${m._id}`}>
                         <div>
                             <h2>{ m.title }</h2>
-                            <p>Creator: { m.creator }</p>
+                            <p>Creator: { m.creator_username }</p>
                         </div>
                         <div>
                             <img className="messenger-preview-arrow" src={arrow} alt="right arrow" />
