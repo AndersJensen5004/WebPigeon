@@ -26,9 +26,16 @@ const Login = () => {
                 username,
                 password
             });
-            login(response.data);
-            console.log(response.data);
-            navigate('/');
+            
+            if (response.data && response.data.user_id && response.data.username) {
+                login({
+                    id: response.data.user_id,
+                    username: response.data.username,
+                });
+                navigate('/');
+            } else {
+                throw new Error('Invalid response from server');
+            }
         } catch (error) {
             setError(error.response?.data?.error || 'Login failed. Please check your credentials.');
         }

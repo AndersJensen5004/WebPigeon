@@ -15,6 +15,11 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
+    
+    if (!userData.id || !userData.username) {
+      console.error('Login data must include id and username');
+      return;
+    }
     setCurrentUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   };
@@ -25,14 +30,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (updatedUserData) => {
-    setCurrentUser(prevUser => ({
-      ...prevUser,
-      ...updatedUserData
-    }));
-    localStorage.setItem('user', JSON.stringify({
-      ...currentUser,
-      ...updatedUserData
-    }));
+    setCurrentUser(prevUser => {
+      if (!prevUser) return null;
+      const newUser = { ...prevUser, ...updatedUserData };
+      localStorage.setItem('user', JSON.stringify(newUser));
+      return newUser;
+    });
   };
 
   return (
