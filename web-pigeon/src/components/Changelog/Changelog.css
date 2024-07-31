@@ -9,12 +9,21 @@
     height: calc(100vh - 7rem);
     overflow-y: auto;
   }
+
+  .changelog.terminal-interface .title{
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    border-bottom: 0.0625rem solid #7c7c7c;
+  }
   
+  .changelog.terminal-interface .title img{
+    margin-right: 0.5rem;
+  }
+
   .changelog h1 {
     font-size: 2em;
-    margin-bottom: 1rem;
-    border-bottom: 0.0625rem solid #7c7c7c;
-    padding-bottom: 0.5rem;
   }
   
   .changelog .release {
