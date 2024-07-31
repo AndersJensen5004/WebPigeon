@@ -1,0 +1,71 @@
+.changelog.terminal-interface {
+    font-family: 'Perfect DOS VGA 437', 'Courier New', monospace;
+    background-color: #e4e4e4;
+    color: #2b2b2b;
+    padding: 1.25rem;
+    box-sizing: border-box;
+    margin-top: 2rem;
+    border: 0.125rem solid #7c7c7c;
+    height: calc(100vh - 7rem);
+    overflow-y: auto;
+  }
+  
+  .changelog h1 {
+    font-size: 2em;
+    margin-bottom: 1rem;
+    border-bottom: 0.0625rem solid #7c7c7c;
+    padding-bottom: 0.5rem;
+  }
+  
+  .changelog .release {
+    margin-bottom: 1.5rem;
+  }
+  
+  .changelog h2 {
+    font-size: 1.5em;
+    margin-bottom: 0.5rem;
+  }
+  
+  .changelog .date {
+    font-size: 0.8em;
+    color: #666;
+  }
+  
+  .changelog ul {
+    list-style-type: none;
+    padding-left: 1rem;
+  }
+  
+  .changelog li {
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  
+  .changelog li::before {
+    content: '>';
+    position: absolute;
+    left: -1rem;
+    color: #003bcf;
+  }
+  
+  .changelog li:hover {
+    color: #003bcf;
+  }
+  
+  /* Scrollbar Styles */
+  .changelog::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  .changelog::-webkit-scrollbar-track {
+    background: #d4d4d4;
+  }
+  
+  .changelog::-webkit-scrollbar-thumb {
+    background: #7c7c7c;
+    border: 2px solid #d4d4d4;
+  }
+  
+  .changelog::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }

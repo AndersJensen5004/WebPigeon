@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate} from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
+import { getLatestVersion } from '../Changelog/versionInfo.js';
 import pigeonLogo from "../../assets/images/pigeon-logo.png";
 import letterLogo from "../../assets/images/letter-logo.png";
 import world from "../../assets/images/world.png";
@@ -11,6 +12,8 @@ const Navbar = () => {
 
     const { currentUser: user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const latestVersion = getLatestVersion();
+
 
     const handleLogout = () => {
         logout();
@@ -22,7 +25,7 @@ const Navbar = () => {
         <>
         <div className="header">
             <img src={letterLogo} alt="Letter P" />
-            <h4>version 1.0</h4>
+            <h4>version {latestVersion}</h4>
             <span className="username"><h4>{user ? user.username : ''}</h4></span>
         </div>
         <nav className="navbar">    

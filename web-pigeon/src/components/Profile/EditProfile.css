@@ -23,12 +23,15 @@
 }
 
 .edit-profile-container input {
+    font-family: Arial;
+    letter-spacing: 0.08rem;
     width: calc(100% - 1rem);
     padding: 0.5rem;
     font-size: 1rem;
     border: 0.0625rem solid #7c7c7c;
     background-color: #ffffff;
 }
+
 
 .edit-profile-options .edit-button {
     padding: 0.5rem;
