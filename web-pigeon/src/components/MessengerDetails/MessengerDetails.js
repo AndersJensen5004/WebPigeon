@@ -1,8 +1,9 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { AuthContext } from '../../contexts/AuthContext';
 import config from '../../config';
 import axios from 'axios';
+import io from 'socket.io-client';
 import defaultProfilePicture from "../../assets/images//default-profile.png";
 import "./MessengerDetails.css";
 
@@ -18,6 +19,9 @@ const MessengerDetails = () => {
     const [showDescription, setShowDescription] = useState(false);
     const navigate = useNavigate();
     const { currentUser: user } = useContext(AuthContext);
+
+    const [socket, setSocket] = useState(null);
+    const messagesEndRef = useRef(null);
 
     const MAX_CHARACTERS = 1000;
 
@@ -52,6 +56,35 @@ const MessengerDetails = () => {
         setShowDeleteConfirm(false);
     };
 
+    useEffect(() => {
+        const newSocket = io(config.apiBaseUrl);
+        setSocket(newSocket);
+
+        return () => newSocket.close();
+    }, []);
+
+    useEffect(() => {
+        if (socket && messenger) {
+            socket.emit('join', { messenger_id: id });
+
+            socket.on('message', (message) => {
+                setMessenger(prevState => ({
+                    ...prevState,
+                    messages: [...prevState.messages, message]
+                }));
+            });
+
+            return () => {
+                socket.emit('leave', { messenger_id: id });
+                socket.off('message');
+            };
+        }
+    }, [socket, messenger, id]);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messenger?.messages]);
+
     const handleAddMessage = async (e) => {
         e.preventDefault();
         if (!user) {
@@ -64,13 +97,11 @@ const MessengerDetails = () => {
         }
         setIsSending(true);
         try {
-            await axios.post(`${config.apiBaseUrl}/messengers/${id}/messages`, {
+            socket.emit('new_message', {
+                messenger_id: id,
                 content: newMessage,
-                username: user.username,
-                timestamp: new Date().toISOString()
+                username: user.username
             });
-            const response = await axios.get(`${config.apiBaseUrl}/messengers/${id}`);
-            setMessenger(response.data);
             setNewMessage('');
             setError(null);
         } catch (err) {
@@ -125,6 +156,7 @@ const MessengerDetails = () => {
                                     </div>
                                 </div>
                             ))}
+                            <div ref={messagesEndRef} />
                         </div>
                     </div>
                     <div className="terminal-footer">
