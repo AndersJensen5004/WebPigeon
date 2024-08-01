@@ -1,7 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_sock import Sock
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from pymongo import MongoClient
 from bson import ObjectId
+import asyncio
+import websockets
+import json
 import bcrypt
 import uuid
 from datetime import datetime, timezone
@@ -10,6 +15,8 @@ import re
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 
 # Connect to DB
 uri = "mongodb+srv://jensenandersp:0UFn0sgkw7Qctlf6@users.u1rsd2u.mongodb.net/?appName=Users"
@@ -251,3 +258,50 @@ def edit_profile(username):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    
+#######################################
+# Websockets
+#######################################
+# WebSocket event handlers
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
+@socketio.on('join')
+def on_join(data):
+    room = data['messenger_id']
+    join_room(room)
+    print(f"User joined room: {room}")
+
+@socketio.on('leave')
+def on_leave(data):
+    room = data['messenger_id']
+    leave_room(room)
+    print(f"User left room: {room}")
+
+@socketio.on('new_message')
+def handle_new_message(data):
+    room = data['messenger_id']
+    # Save the message to the database
+    messenger_collection = messenger_data[room]
+    message_data = {
+        'content': data['content'],
+        'username': data['username'],
+        'timestamp': datetime.now(timezone.utc)
+    }
+    result = messenger_collection.insert_one(message_data)
+    
+    # Broadcast the message to all clients in the room
+    emit('message', {
+        'id': str(result.inserted_id),
+        'content': data['content'],
+        'username': data['username'],
+        'timestamp': message_data['timestamp'].isoformat(),
+        'profile_photo': users_collection.find_one({'username': data['username']})['profile_photo']
+    }, room=room)
+    
+    

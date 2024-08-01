@@ -1,6 +1,15 @@
 // versionInfo.js
 export const versionHistory = [
-      {
+    {
+      version: "1.0.3",
+      date: "2024-07-31",
+      changes: [
+        "Fixing 404 error on frontend host",
+        "Site added on Google Search Console",
+        ""
+      ]
+    },
+    {
       version: "1.0.2",
       date: "2024-07-31",
       changes: [
