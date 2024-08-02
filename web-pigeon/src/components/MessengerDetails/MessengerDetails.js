@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { AuthContext } from '../../contexts/AuthContext';
 import config from '../../config';
@@ -12,6 +12,7 @@ const MessengerDetails = () => {
     const { id } = useParams();
     const [messenger, setMessenger] = useState(null);
     const [newMessage, setNewMessage] = useState('');
+    const [messages, setMessages] = useState([]);
     const [error, setError] = useState(null);
     const [isPending, setIsPending] = useState(true);
     const [isSending, setIsSending] = useState(false);
@@ -20,23 +21,24 @@ const MessengerDetails = () => {
     const navigate = useNavigate();
     const { currentUser: user } = useContext(AuthContext);
 
-    const [socket, setSocket] = useState(null);
     const messagesEndRef = useRef(null);
+
+    const [isConnected, setIsConnected] = useState(false);
+    const [isReconnecting, setIsReconnecting] = useState(false);
+    const socketRef = useRef(null);
 
     const MAX_CHARACTERS = 1000;
 
-    useEffect(() => {
-        const fetchMessenger = async () => {
-            try {
-                const response = await axios.get(`${config.apiBaseUrl}/messengers/${id}`);
-                setMessenger(response.data);
-                setIsPending(false);
-            } catch (err) {
-                setError(err.message);
-                setIsPending(false);
-            }
-        };
-        fetchMessenger();
+    const fetchMessenger = useCallback(async () => {
+        try {
+            const response = await axios.get(`${config.apiBaseUrl}/messengers/${id}`);
+            setMessenger(response.data);
+            setMessages(response.data.messages || []);
+            setIsPending(false);
+        } catch (err) {
+            setError(err.message);
+            setIsPending(false);
+        }
     }, [id]);
 
     const handleDeleteClick = () => {
@@ -56,39 +58,60 @@ const MessengerDetails = () => {
         setShowDeleteConfirm(false);
     };
 
-    useEffect(() => {
-        const newSocket = io(config.apiBaseUrl);
-        setSocket(newSocket);
-
-        return () => newSocket.close();
-    }, []);
 
     useEffect(() => {
-        if (socket && messenger) {
-            socket.emit('join', { messenger_id: id });
+        fetchMessenger();
 
-            socket.on('message', (message) => {
-                setMessenger(prevState => ({
-                    ...prevState,
-                    messages: [...prevState.messages, message]
-                }));
-            });
+        const newSocket = io(config.apiBaseUrl, {
+            transports: ['websocket', 'polling'],
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+        });
 
-            return () => {
-                socket.emit('leave', { messenger_id: id });
-                socket.off('message');
-            };
-        }
-    }, [socket, messenger, id]);
+        newSocket.on('connect', () => {
+            console.log('Connected to Socket.IO server');
+            setIsConnected(true);
+            setIsReconnecting(false);
+            newSocket.emit('join', { messenger_id: id });
+        });
+
+        newSocket.on('disconnect', () => {
+            console.log('Disconnected from Socket.IO server');
+            setIsConnected(false);
+            setIsReconnecting(true);
+        });
+
+        newSocket.on('reconnecting', (attemptNumber) => {
+            console.log(`Reconnecting attempt ${attemptNumber}`);
+            setIsReconnecting(true);
+        });
+
+        newSocket.on('message', (message) => {
+            setMessages(prevMessages => [...prevMessages, message]);
+        });
+
+        socketRef.current = newSocket;
+
+        return () => {
+            newSocket.emit('leave', { messenger_id: id });
+            newSocket.disconnect();
+        };
+    }, [id, fetchMessenger]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messenger?.messages]);
+    }, [messages]);
 
-    const handleAddMessage = async (e) => {
+    const handleAddMessage = (e) => {
         e.preventDefault();
         if (!user) {
             setError('You must be logged in to send a message');
+            return;
+        }
+        if (!isConnected) {
+            setError('You are currently disconnected. Please wait for reconnection.');
             return;
         }
         if (newMessage.length > MAX_CHARACTERS) {
@@ -96,19 +119,13 @@ const MessengerDetails = () => {
             return;
         }
         setIsSending(true);
-        try {
-            socket.emit('new_message', {
-                messenger_id: id,
-                content: newMessage,
-                username: user.username
-            });
-            setNewMessage('');
-            setError(null);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setIsSending(false);
-        }
+        socketRef.current.emit('new_message', {
+            messenger_id: id,
+            content: newMessage,
+            username: user.username
+        });
+        setNewMessage('');
+        setIsSending(false);
     };
 
     const toggleDescription = () => {
@@ -117,6 +134,11 @@ const MessengerDetails = () => {
 
     return ( 
         <div className="messenger-details terminal-interface">
+            {isReconnecting && (
+                <div className="reconnecting-message">
+                    Reconnecting to server...
+                </div>
+            )}
             { isPending && <div className="loading">Loading...</div> }
             { error && <div className="error">{ error }</div> }
             { messenger && (
@@ -139,10 +161,10 @@ const MessengerDetails = () => {
                         )}
                     </div>
                     <div className="terminal-body">
-                        <div className="messages">
-                            {messenger.messages && messenger.messages.map(message => (
-                                <div key={message._id} className="message">
-                                        <img 
+                        <div className="messages">  
+                            {messenger && messages && messages.map(message => (
+                                <div key={message._id || message.id} className="message">
+                                        <img     
                                             src={message.profile_photo || defaultProfilePicture} 
                                             alt={`${message.username}'s profile`} 
                                             className="profile-pic"
@@ -155,7 +177,7 @@ const MessengerDetails = () => {
                                         <span className="message-text">{message.content}</span>
                                     </div>
                                 </div>
-                            ))}
+                            ))} 
                             <div ref={messagesEndRef} />
                         </div>
                     </div>
@@ -168,10 +190,10 @@ const MessengerDetails = () => {
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 placeholder="Type your message..."
                                 maxLength={MAX_CHARACTERS}
-                                disabled={isSending}
+                                disabled={isSending || !isConnected}
                                 required
                             />
-                            <button type="submit" disabled={isSending}>
+                            <button type="submit" disabled={isSending || !isConnected}>
                                 {isSending ? 'Sending...' : 'SEND'}
                             </button>
                         </form>

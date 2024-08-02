@@ -1,31 +1,36 @@
+import os
+
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_sock import Sock
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from pymongo import MongoClient
 from bson import ObjectId
-import asyncio
-import websockets
 import json
+import re
 import bcrypt
 import uuid
 from datetime import datetime, timezone
-from typing import List
-import re
+from config import ProductionConfig, DevelopmentConfig
 
 app = Flask(__name__)
-CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+config_class = ProductionConfig if os.environ.get('FLASK_ENV') == 'production' else DevelopmentConfig
+app.config.from_object(config_class)
 
+# Setup CORS
+CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}})
 
-# Connect to DB
-uri = "mongodb+srv://jensenandersp:0UFn0sgkw7Qctlf6@users.u1rsd2u.mongodb.net/?appName=Users"
-client = MongoClient(uri)
+# Setup Socket.IO
+socketio = SocketIO(app, cors_allowed_origins=app.config['SOCKETIO_CORS_ORIGINS'], async_mode='eventlet')
+
+# Setup MongoDB connection
+client = MongoClient(app.config['MONGODB_URI'])
 db = client['web-pigeon']
 users_collection = db['users']
 messengers_collection = db['messengers']
 messenger_data = client['messenger-data']
-
 @app.route('/create_account', methods=['POST'])
 def create_account():
     data = request.json
@@ -114,34 +119,26 @@ def get_messengers():
 
     return jsonify(messengers)
 
+
 @app.route('/messengers/<id>', methods=['GET'])
 def get_messenger(id):
     messenger = messengers_collection.find_one({'_id': id})
     if messenger:
-        # Fetch the creator's username
         creator = users_collection.find_one({'_id': messenger['creator_id']})
         creator_username = creator['username'] if creator else 'Unknown'
-        
+
         messenger['creator_username'] = creator_username
         messenger['_id'] = str(messenger['_id'])
-        
-        # Get the specific collection for this messenger
+
+        # Fetch only the last 50 messages, for example
         messenger_collection = messenger_data[id]
-        
-        # Fetch messages (you might want to limit this or implement pagination)
-        messages = list(messenger_collection.find().sort("timestamp", 1))
-        
-        # Get unique usernames from messages
-        unique_usernames = set(message['username'] for message in messages)
-        
-        # Fetch user data for all unique users at once
-        users = {user['username']: user.get('profile_photo') 
-                 for user in users_collection.find({'username': {'$in': list(unique_usernames)}})}
-        
+        messages = list(messenger_collection.find().sort("timestamp", -1).limit(50))
+        messages.reverse()  # Reverse to get chronological order
+
         for message in messages:
             message['_id'] = str(message['_id'])
-            message['profile_photo'] = users.get(message['username'])
-        
+            message['profile_photo'] = users_collection.find_one({'username': message['username']})['profile_photo']
+
         messenger['messages'] = messages
         return jsonify(messenger)
     return jsonify({'error': 'Messenger not found'}), 404
@@ -189,6 +186,21 @@ def add_message(id):
     
     result = messenger_collection.insert_one(data)
     return jsonify({'id': str(result.inserted_id)}), 201
+
+
+@app.route('/messengers/<id>/messages', methods=['GET'])
+def get_latest_messages(id):
+    messenger_collection = messenger_data[id]
+    messages = list(messenger_collection.find().sort("timestamp", -1).limit(50))  # Get last 50 messages
+    messages.reverse()  # Reverse to get chronological order
+
+    for message in messages:
+        message['_id'] = str(message['_id'])
+        message['timestamp'] = message['timestamp'].isoformat()
+        user = users_collection.find_one({'username': message['username']})
+        message['profile_photo'] = user['profile_photo'] if user else None
+
+    return jsonify(messages)
 
 @app.route('/messengers/<id>', methods=['DELETE'])
 def delete_messenger(id):
@@ -256,9 +268,7 @@ def edit_profile(username):
     else:
         return jsonify({"message": "No changes made", "user_id": user['_id']}), 200
 
-if __name__ == '__main__':
-    app.run(debug=True)
-    
+
 #######################################
 # Websockets
 #######################################
@@ -267,9 +277,11 @@ if __name__ == '__main__':
 def handle_connect():
     print('Client connected')
 
+
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')
+
 
 @socketio.on('join')
 def on_join(data):
@@ -277,16 +289,18 @@ def on_join(data):
     join_room(room)
     print(f"User joined room: {room}")
 
+
 @socketio.on('leave')
 def on_leave(data):
     room = data['messenger_id']
     leave_room(room)
     print(f"User left room: {room}")
 
+
 @socketio.on('new_message')
 def handle_new_message(data):
+    print('Received new message:', data)
     room = data['messenger_id']
-    # Save the message to the database
     messenger_collection = messenger_data[room]
     message_data = {
         'content': data['content'],
@@ -294,8 +308,7 @@ def handle_new_message(data):
         'timestamp': datetime.now(timezone.utc)
     }
     result = messenger_collection.insert_one(message_data)
-    
-    # Broadcast the message to all clients in the room
+
     emit('message', {
         'id': str(result.inserted_id),
         'content': data['content'],
@@ -303,5 +316,8 @@ def handle_new_message(data):
         'timestamp': message_data['timestamp'].isoformat(),
         'profile_photo': users_collection.find_one({'username': data['username']})['profile_photo']
     }, room=room)
-    
+
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True, port=5000)
     
