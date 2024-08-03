@@ -121,8 +121,9 @@ const MessengerDetails = () => {
         setIsSending(true);
         socketRef.current.emit('new_message', {
             messenger_id: id,
-            content: newMessage,
-            username: user.username
+            sender_id: user.id,
+            content: newMessage
+            //username: user.username
         });
         setNewMessage('');
         setIsSending(false);
@@ -146,19 +147,23 @@ const MessengerDetails = () => {
                     <div className="terminal-header">
                         <div>
                             <h2>MESSENGER: {messenger.title}</h2>
-                            <p>CREATOR: {messenger.creator_username}</p>
+                            <p>CREATOR:  
+                                <Link to={`/profile/${messenger.creator_username}`}>{messenger.creator_username}</Link>
+                            </p>
+                        </div>
+                        <div>
                             <button onClick={toggleDescription} className="description-toggle">
                                 {showDescription ? "HIDE DESCRIPTION" : "SHOW DESCRIPTION"}
                             </button>
+                            {user && user.id === messenger.creator_id && (
+                                <button onClick={handleDeleteClick} className="delete-btn">DELETE</button>
+                            )}
                             {showDescription && (
                                 <div className="description">
                                     <p>{messenger.description}</p>
                                 </div>
                             )}
                         </div>
-                        {user && user.id === messenger.creator_id && (
-                            <button onClick={handleDeleteClick} className="delete-btn">DELETE</button>
-                        )}
                     </div>
                     <div className="terminal-body">
                         <div className="messages">  
