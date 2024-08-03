@@ -130,14 +130,16 @@ def get_messenger(id):
         messenger['creator_username'] = creator_username
         messenger['_id'] = str(messenger['_id'])
 
-        # Fetch only the last 50 messages, for example
+        # Fetch only the last 50 messages
         messenger_collection = messenger_data[id]
         messages = list(messenger_collection.find().sort("timestamp", -1).limit(50))
         messages.reverse()  # Reverse to get chronological order
 
         for message in messages:
+            user = users_collection.find_one({'_id': message['sender_id']})
             message['_id'] = str(message['_id'])
-            message['profile_photo'] = users_collection.find_one({'username': message['username']})['profile_photo']
+            message['username'] = user['username'] if user else None
+            message['profile_photo'] = user['profile_photo']
 
         messenger['messages'] = messages
         return jsonify(messenger)
@@ -175,7 +177,7 @@ def add_message(id):
     messenger_collection = messenger_data[id]
     
     # Assuming the message data includes the user_id of the sender
-    sender_id = data.get('user_id')
+    sender_id = data.get('sender_id')
     
     # Update last_online for the sender
     if sender_id:
@@ -197,7 +199,8 @@ def get_latest_messages(id):
     for message in messages:
         message['_id'] = str(message['_id'])
         message['timestamp'] = message['timestamp'].isoformat()
-        user = users_collection.find_one({'username': message['username']})
+        user = users_collection.find_one({'_id': message['sender_id']})
+        message['username'] = user['username'] if user else None
         message['profile_photo'] = user['profile_photo'] if user else None
 
     return jsonify(messages)
@@ -304,17 +307,20 @@ def handle_new_message(data):
     messenger_collection = messenger_data[room]
     message_data = {
         'content': data['content'],
-        'username': data['username'],
+        'sender_id': data['sender_id'],
         'timestamp': datetime.now(timezone.utc)
     }
     result = messenger_collection.insert_one(message_data)
 
+    user = users_collection.find_one({'_id': data['sender_id']})
+
     emit('message', {
         'id': str(result.inserted_id),
         'content': data['content'],
-        'username': data['username'],
+        'sender_id': data['sender_id'],
         'timestamp': message_data['timestamp'].isoformat(),
-        'profile_photo': users_collection.find_one({'username': data['username']})['profile_photo']
+        'username': user['username'],
+        'profile_photo': user['profile_photo']
     }, room=room)
 
 
