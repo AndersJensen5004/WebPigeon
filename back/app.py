@@ -24,6 +24,8 @@ CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}})
 
 # Setup Socket.IO
 socketio = SocketIO(app, cors_allowed_origins=app.config['SOCKETIO_CORS_ORIGINS'], async_mode='eventlet')
+active_connections = {}
+
 
 # Setup MongoDB connection
 client = MongoClient(app.config['MONGODB_URI'])
@@ -284,12 +286,19 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')
+    for messenger_id, connections in active_connections.items():
+        if request.sid in connections:
+            connections.remove(request.sid)
+            break
 
 
 @socketio.on('join')
 def on_join(data):
     room = data['messenger_id']
     join_room(room)
+    if room not in active_connections:
+        active_connections[room] = set()
+    active_connections[room].add(request.sid)
     print(f"User joined room: {room}")
 
 
@@ -297,8 +306,9 @@ def on_join(data):
 def on_leave(data):
     room = data['messenger_id']
     leave_room(room)
+    if room in active_connections:
+        active_connections[room].discard(request.sid)
     print(f"User left room: {room}")
-
 
 @socketio.on('new_message')
 def handle_new_message(data):
@@ -314,14 +324,15 @@ def handle_new_message(data):
 
     user = users_collection.find_one({'_id': data['sender_id']})
 
-    emit('message', {
-        'id': str(result.inserted_id),
-        'content': data['content'],
-        'sender_id': data['sender_id'],
-        'timestamp': message_data['timestamp'].isoformat(),
-        'username': user['username'],
-        'profile_photo': user['profile_photo']
-    }, room=room)
+    for connection in active_connections.get(room, set()):
+        emit('message', {
+            'id': str(result.inserted_id),
+            'content': data['content'],
+            'sender_id': data['sender_id'],
+            'timestamp': message_data['timestamp'].isoformat(),
+            'username': user['username'],
+            'profile_photo': user['profile_photo']
+        }, room=connection)
 
 
 if __name__ == '__main__':
