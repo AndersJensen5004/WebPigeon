@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { AuthContext } from '../../contexts/AuthContext';
+import { getSocket, closeSocket } from '../../socketManager';
 import config from '../../config';
 import axios from 'axios';
 import io from 'socket.io-client';
@@ -62,41 +63,32 @@ const MessengerDetails = () => {
     useEffect(() => {
         fetchMessenger();
 
-        const newSocket = io(config.apiBaseUrl, {
-            transports: ['websocket', 'polling'],
-            reconnection: true,
-            reconnectionAttempts: Infinity,
-            reconnectionDelay: 1000,
-            reconnectionDelayMax: 5000,
-        });
+        socketRef.current = getSocket(id);
 
-        newSocket.on('connect', () => {
+        socketRef.current.on('connect', () => {
             console.log('Connected to Socket.IO server');
             setIsConnected(true);
             setIsReconnecting(false);
-            newSocket.emit('join', { messenger_id: id });
         });
 
-        newSocket.on('disconnect', () => {
+        socketRef.current.on('disconnect', () => {
             console.log('Disconnected from Socket.IO server');
             setIsConnected(false);
             setIsReconnecting(true);
         });
 
-        newSocket.on('reconnecting', (attemptNumber) => {
+        socketRef.current.on('reconnecting', (attemptNumber) => {
             console.log(`Reconnecting attempt ${attemptNumber}`);
             setIsReconnecting(true);
         });
 
-        newSocket.on('message', (message) => {
+        socketRef.current.on('message', (message) => {
             setMessages(prevMessages => [...prevMessages, message]);
         });
 
-        socketRef.current = newSocket;
-
         return () => {
-            newSocket.emit('leave', { messenger_id: id });
-            newSocket.disconnect();
+            socketRef.current.emit('leave', { messenger_id: id });
+            closeSocket();
         };
     }, [id, fetchMessenger]);
 
@@ -123,7 +115,6 @@ const MessengerDetails = () => {
             messenger_id: id,
             sender_id: user.id,
             content: newMessage
-            //username: user.username
         });
         setNewMessage('');
         setIsSending(false);
