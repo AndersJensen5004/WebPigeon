@@ -4,7 +4,6 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { getSocket, closeSocket } from '../../socketManager';
 import config from '../../config';
 import axios from 'axios';
-import io from 'socket.io-client';
 import defaultProfilePicture from "../../assets/images//default-profile.png";
 import "./MessengerDetails.css";
 
