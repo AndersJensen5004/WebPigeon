@@ -18,5 +18,5 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    CORS_ORIGINS = ["https://webpigeon.net", "https://www.webpigeon.net"]
-    SOCKETIO_CORS_ORIGINS = ["https://webpigeon.net", "https://www.webpigeon.net"]
+    CORS_ORIGINS = ["https://webpigeon.net", "https://www.webpigeon.net", "https://webpigeon.onrender.com", "https://www.webpigeon.onrender.com"]
+    SOCKETIO_CORS_ORIGINS = ["https://webpigeon.net", "https://www.webpigeon.net", "https://webpigeon.onrender.com", "https://www.webpigeon.onrender.com"]
