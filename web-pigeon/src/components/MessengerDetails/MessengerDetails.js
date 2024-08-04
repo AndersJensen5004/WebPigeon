@@ -64,30 +64,41 @@ const MessengerDetails = () => {
 
         socketRef.current = getSocket(id);
 
-        socketRef.current.on('connect', () => {
+        const onConnect = () => {
             console.log('Connected to Socket.IO server');
             setIsConnected(true);
             setIsReconnecting(false);
-        });
+        };
 
-        socketRef.current.on('disconnect', () => {
+        const onDisconnect = () => {
             console.log('Disconnected from Socket.IO server');
             setIsConnected(false);
             setIsReconnecting(true);
-        });
+        };
 
-        socketRef.current.on('reconnecting', (attemptNumber) => {
+        const onReconnecting = (attemptNumber) => {
             console.log(`Reconnecting attempt ${attemptNumber}`);
             setIsReconnecting(true);
-        });
+        };
 
-        socketRef.current.on('message', (message) => {
+        const onMessage = (message) => {
             setMessages(prevMessages => [...prevMessages, message]);
-        });
+        };
+
+        socketRef.current.on('connect', onConnect);
+        socketRef.current.on('disconnect', onDisconnect);
+        socketRef.current.on('reconnecting', onReconnecting);
+        socketRef.current.on('message', onMessage);
+
+        // Check initial connection status
+        setIsConnected(socketRef.current.connected);
 
         return () => {
-            socketRef.current.emit('leave', { messenger_id: id });
-            closeSocket();
+            socketRef.current.off('connect', onConnect);
+            socketRef.current.off('disconnect', onDisconnect);
+            socketRef.current.off('reconnecting', onReconnecting);
+            socketRef.current.off('message', onMessage);
+            closeSocket(id);
         };
     }, [id, fetchMessenger]);
 
@@ -114,9 +125,15 @@ const MessengerDetails = () => {
             messenger_id: id,
             sender_id: user.id,
             content: newMessage
+        }, (acknowledgement) => {
+            if (acknowledgement && acknowledgement.status === 'success') {
+                setNewMessage('');
+                setError(null);
+            } else {
+                setError('Failed to send message. Please try again.');
+            }
+            setIsSending(false);
         });
-        setNewMessage('');
-        setIsSending(false);
     };
 
     const toggleDescription = () => {
@@ -125,9 +142,9 @@ const MessengerDetails = () => {
 
     return ( 
         <div className="messenger-details terminal-interface">
-            {isReconnecting && (
-                <div className="reconnecting-message">
-                    Reconnecting to server...
+            {(!isConnected || isReconnecting)&& (
+                <div className="disconnected-message">
+                    You are currently disconnected. Reconnecting...
                 </div>
             )}
             { isPending && <div className="loading">Loading...</div> }
