@@ -6,9 +6,11 @@ eventlet.monkey_patch()
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_socketio import ConnectionRefusedError
 from pymongo import MongoClient
 from bson import ObjectId
 import json
+from typing import Dict, Set
 import re
 import bcrypt
 import uuid
@@ -24,7 +26,7 @@ CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}})
 
 # Setup Socket.IO
 socketio = SocketIO(app, cors_allowed_origins=app.config['SOCKETIO_CORS_ORIGINS'], async_mode='eventlet')
-active_connections = {}
+active_connections: Dict[str, Set[str]] = {}
 
 
 # Setup MongoDB connection
@@ -280,15 +282,23 @@ def edit_profile(username):
 # WebSocket event handlers
 @socketio.on('connect')
 def handle_connect():
-    print('Client connected')
-
+    sid = request.sid  # type: ignore
+    messenger_id = request.args.get('messengerId')
+    if messenger_id:
+        join_room(messenger_id)
+        if messenger_id not in active_connections:
+            active_connections[messenger_id] = set()
+        active_connections[messenger_id].add(sid)
+        print(f'Client {sid} connected to messenger {messenger_id}')
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    print('Client disconnected')
+    sid = request.sid  # type: ignore
     for messenger_id, connections in active_connections.items():
-        if request.sid in connections:
-            connections.remove(request.sid)
+        if sid in connections:
+            connections.remove(sid)
+            leave_room(messenger_id)
+            print(f'Client {sid} disconnected from messenger {messenger_id}')
             break
 
 
@@ -312,27 +322,37 @@ def on_leave(data):
 
 @socketio.on('new_message')
 def handle_new_message(data):
-    print('Received new message:', data)
+    sid = request.sid  # type: ignore
     room = data['messenger_id']
-    messenger_collection = messenger_data[room]
-    message_data = {
-        'content': data['content'],
-        'sender_id': data['sender_id'],
-        'timestamp': datetime.now(timezone.utc)
-    }
-    result = messenger_collection.insert_one(message_data)
-
-    user = users_collection.find_one({'_id': data['sender_id']})
-
-    for connection in active_connections.get(room, set()):
-        emit('message', {
-            'id': str(result.inserted_id),
+    if sid not in active_connections.get(room, set()):
+        return {'status': 'error', 'message': 'Not connected to this messenger'}
+    try:
+        print('Received new message:', data)
+        messenger_collection = messenger_data[room]
+        message_data = {
             'content': data['content'],
             'sender_id': data['sender_id'],
-            'timestamp': message_data['timestamp'].isoformat(),
-            'username': user['username'],
-            'profile_photo': user['profile_photo']
-        }, room=connection)
+            'timestamp': datetime.now(timezone.utc)
+        }
+        result = messenger_collection.insert_one(message_data)
+
+        user = users_collection.find_one({'_id': data['sender_id']})
+
+        for connection in active_connections.get(room, set()):
+            emit('message', {
+                'id': str(result.inserted_id),
+                'content': data['content'],
+                'sender_id': data['sender_id'],
+                'timestamp': message_data['timestamp'].isoformat(),
+                'username': user['username'],
+                'profile_photo': user['profile_photo']
+            }, room=connection)
+
+        print("Message processed successfully")  # Add this for debugging
+        return {'status': 'success'}
+    except Exception as e:
+        print(f"Error handling new message: {str(e)}")
+        return {'status': 'error', 'message': 'Server error occurred'}
 
 
 if __name__ == '__main__':

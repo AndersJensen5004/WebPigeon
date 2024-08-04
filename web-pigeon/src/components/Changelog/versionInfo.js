@@ -7,7 +7,8 @@ export const versionHistory = [
         "Live chat updates now work for users that are logged in",
         "UI changes to messengers",
         "Fixed how messages are stored in database",
-        "Fixed bug with changing username"
+        "Fixed bug with changing username",
+        "Fixed clients being unsynced in messengers"
       ]
     },
     {
