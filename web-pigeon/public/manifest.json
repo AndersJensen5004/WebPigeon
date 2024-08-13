@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Web Pigeon",
+  "name": "Web Pigeon",
+  "description": "Welcome to Web Pigeon, an anonymous web app for public and private messaging.  Web Pigeon stores no data connected to the user, everything private is encrypted.  ",
   "icons": [
     {
       "src": "favicon.ico",

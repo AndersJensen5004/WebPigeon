@@ -1,7 +1,7 @@
-import { useState, useEffect, useContext, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { AuthContext } from '../../contexts/AuthContext';
-import { getSocket, closeSocket } from '../../socketManager';
+import { joinMessenger, leaveMessenger, sendMessage } from '../../socketManager';
+import { useAuth } from '../../contexts/AuthContext';
 import config from '../../config';
 import axios from 'axios';
 import defaultProfilePicture from "../../assets/images//default-profile.png";
@@ -18,14 +18,16 @@ const MessengerDetails = () => {
     const [isSending, setIsSending] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showDescription, setShowDescription] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
+    const [isReconnecting, setIsReconnecting] = useState(false);
+    const [connectedUsers, setConnectedUsers] = useState([]);
     const navigate = useNavigate();
-    const { currentUser: user } = useContext(AuthContext);
+
+    const { currentUser: user, socket } = useAuth();
+
 
     const messagesEndRef = useRef(null);
 
-    const [isConnected, setIsConnected] = useState(false);
-    const [isReconnecting, setIsReconnecting] = useState(false);
-    const socketRef = useRef(null);
 
     const MAX_CHARACTERS = 1000;
 
@@ -40,6 +42,10 @@ const MessengerDetails = () => {
             setIsPending(false);
         }
     }, [id]);
+
+    useEffect(() => {
+        fetchMessenger();
+    }, [fetchMessenger]);
 
     const handleDeleteClick = () => {
         setShowDeleteConfirm(true);
@@ -58,49 +64,77 @@ const MessengerDetails = () => {
         setShowDeleteConfirm(false);
     };
 
-
     useEffect(() => {
-        fetchMessenger();
+        if (!user) {
+            navigate('/login');
+            return;
+        }
 
-        socketRef.current = getSocket(id);
+        if (socket) {
+            setIsConnected(socket.connected);
 
-        const onConnect = () => {
-            console.log('Connected to Socket.IO server');
-            setIsConnected(true);
-            setIsReconnecting(false);
-        };
+            socket.on('connect', () => {
+                console.log('Socket connected');
+                setIsConnected(true);
+                setIsReconnecting(false);
+                joinMessenger(id);
+            });
+            
+            socket.on('disconnect', () => {
+                console.log('Socket disconnected');
+                setIsConnected(false);
+            });
+            
+            socket.on('reconnecting', () => {
+                console.log('Socket reconnecting');
+                setIsReconnecting(true);
+            });
+            
+            socket.on('reconnect', () => {
+                console.log('Socket reconnected');
+                setIsConnected(true);
+                setIsReconnecting(false);
+                joinMessenger(id);
+            });
 
-        const onDisconnect = () => {
-            console.log('Disconnected from Socket.IO server');
-            setIsConnected(false);
-            setIsReconnecting(true);
-        };
+            socket.on('message', (message) => {
+                setMessages(prevMessages => [...prevMessages, message]);
+            });
 
-        const onReconnecting = (attemptNumber) => {
-            console.log(`Reconnecting attempt ${attemptNumber}`);
-            setIsReconnecting(true);
-        };
+            socket.on('user_joined', (data) => {
+                console.log('User joined:', data);
+                // You might want to show a notification or update the UI here
+            });
 
-        const onMessage = (message) => {
-            setMessages(prevMessages => [...prevMessages, message]);
-        };
+            socket.on('user_left', (data) => {
+                console.log('User left:', data);
+                // You might want to show a notification or update the UI here
+            });
 
-        socketRef.current.on('connect', onConnect);
-        socketRef.current.on('disconnect', onDisconnect);
-        socketRef.current.on('reconnecting', onReconnecting);
-        socketRef.current.on('message', onMessage);
+            socket.on('connected_users', (data) => {
+                console.log('Connected users:', data);
+                setConnectedUsers(data.users);
+            });
 
-        // Check initial connection status
-        setIsConnected(socketRef.current.connected);
+            if (socket.connected) {
+                joinMessenger(id);
+            }
+        }
 
         return () => {
-            socketRef.current.off('connect', onConnect);
-            socketRef.current.off('disconnect', onDisconnect);
-            socketRef.current.off('reconnecting', onReconnecting);
-            socketRef.current.off('message', onMessage);
-            closeSocket(id);
+            if (socket) {
+                leaveMessenger(id);
+                socket.off('connect');
+                socket.off('disconnect');
+                socket.off('reconnecting');
+                socket.off('reconnect');
+                socket.off('message');
+                socket.off('user_joined');
+                socket.off('user_left');
+                socket.off('connected_users');
+            }
         };
-    }, [id, fetchMessenger]);
+    }, [id, user, socket, navigate]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -109,31 +143,17 @@ const MessengerDetails = () => {
     const handleAddMessage = (e) => {
         e.preventDefault();
         if (!user) {
-            setError('You must be logged in to send a message');
-            return;
-        }
-        if (!isConnected) {
-            setError('You are currently disconnected. Please wait for reconnection.');
-            return;
+          setError('You must be logged in to send a message');
+          return;
         }
         if (newMessage.length > MAX_CHARACTERS) {
-            setError(`Message exceeds ${MAX_CHARACTERS} character limit`);
-            return;
+          setError(`Message exceeds ${MAX_CHARACTERS} character limit`);
+          return;
         }
         setIsSending(true);
-        socketRef.current.emit('new_message', {
-            messenger_id: id,
-            sender_id: user.id,
-            content: newMessage
-        }, (acknowledgement) => {
-            if (acknowledgement && acknowledgement.status === 'success') {
-                setNewMessage('');
-                setError(null);
-            } else {
-                setError('Failed to send message. Please try again.');
-            }
-            setIsSending(false);
-        });
+        sendMessage(id, newMessage);
+        setNewMessage('');
+        setIsSending(false);
     };
 
     const toggleDescription = () => {
@@ -142,86 +162,99 @@ const MessengerDetails = () => {
 
     return ( 
         <div className="messenger-details terminal-interface">
-            {(!isConnected || isReconnecting)&& (
-                <div className="disconnected-message">
-                    You are currently disconnected. Reconnecting...
-                </div>
-            )}
-            { isPending && <div className="loading">Loading...</div> }
-            { error && <div className="error">{ error }</div> }
-            { messenger && (
+            {!user && <div>Please log in to view this messenger.</div>}
+            {user && (
                 <>
-                    <div className="terminal-header">
-                        <div>
-                            <h2>MESSENGER: {messenger.title}</h2>
-                            <p>CREATOR:  
-                                <Link to={`/profile/${messenger.creator_username}`}>{messenger.creator_username}</Link>
-                            </p>
-                        </div>
-                        <div>
-                            <button onClick={toggleDescription} className="description-toggle">
-                                {showDescription ? "HIDE DESCRIPTION" : "SHOW DESCRIPTION"}
-                            </button>
-                            {user && user.id === messenger.creator_id && (
-                                <button onClick={handleDeleteClick} className="delete-btn">DELETE</button>
-                            )}
-                            {showDescription && (
-                                <div className="description">
-                                    <p>{messenger.description}</p>
-                                </div>
-                            )}
-                        </div>
+                {(!isConnected || isReconnecting)&& (
+                    <div className="disconnected-message">
+                        You are currently disconnected. Reconnecting...
                     </div>
-                    <div className="terminal-body">
-                        <div className="messages">  
-                            {messenger && messages && messages.map(message => (
-                                <div key={message._id || message.id} className="message">
-                                        <img     
-                                            src={message.profile_photo || defaultProfilePicture} 
-                                            alt={`${message.username}'s profile`} 
-                                            className="profile-pic"
-                                        />
-                                    <div className="message-content">
-                                        <div className="message-header">
-                                            <Link to={`/profile/${message.username}`} className="username">{message.username}</Link>
-                                            <span className="timestamp">[{new Date(message.timestamp).toLocaleString()}]</span>
-                                        </div>
-                                        <span className="message-text">{message.content}</span>
+                )}
+                { isPending && <div className="loading">Loading...</div> }
+                { error && <div className="error">{ error }</div> }
+                { messenger && (
+                    <>
+                        <div className="terminal-header">
+                            <div>
+                                <h2>MESSENGER: {messenger.title}</h2>
+                                <p>CREATOR:  
+                                    <Link to={`/profile/${messenger.creator_username}`}>{messenger.creator_username}</Link>
+                                </p>
+                            </div>
+                            <div>
+                                <button onClick={toggleDescription} className="description-toggle">
+                                    {showDescription ? "HIDE DESCRIPTION" : "SHOW DESCRIPTION"}
+                                </button>
+                                {user && user.id === messenger.creator_id && (
+                                    <button onClick={handleDeleteClick} className="delete-btn">DELETE</button>
+                                )}
+                                {showDescription && (
+                                    <div className="description">
+                                        <p>{messenger.description}</p>
                                     </div>
-                                </div>
-                            ))} 
-                            <div ref={messagesEndRef} />
+                                )}
+                            </div>
                         </div>
-                    </div>
-                    <div className="terminal-footer">
-                        <form onSubmit={handleAddMessage} className="message-form">
-                            <span className="prompt">&gt;</span>
-                            <input 
-                                type="text"
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                placeholder="Type your message..."
-                                maxLength={MAX_CHARACTERS}
-                                disabled={isSending || !isConnected}
-                                required
-                            />
-                            <button type="submit" disabled={isSending || !isConnected}>
-                                {isSending ? 'Sending...' : 'SEND'}
-                            </button>
-                        </form>
-                        <div className="character-count">
-                            {newMessage.length}/{MAX_CHARACTERS}
+                        <div className="connected-users">
+                            <h3>Connected Users</h3>
+                            <ul>
+                                {connectedUsers.map((userId) => (
+                                    <li key={userId}>{userId}</li> // You might want to fetch and display usernames instead of IDs
+                                ))}
+                            </ul>
                         </div>
+                        <div className="terminal-body">
+                            <div className="messages">  
+                                {messenger && messages && messages.map(message => (
+                                    <div key={message._id || message.id} className="message">
+                                            <img     
+                                                src={message.profile_photo || defaultProfilePicture} 
+                                                alt={`${message.username}'s profile`} 
+                                                className="profile-pic"
+                                            />
+                                        <div className="message-content">
+                                            <div className="message-header">
+                                                <Link to={`/profile/${message.username}`} className="username">{message.username}</Link>
+                                                <span className="timestamp">[{new Date(message.timestamp).toLocaleString()}]</span>
+                                            </div>
+                                            <span className="message-text">{message.content}</span>
+                                        </div>
+                                    </div>
+                                ))} 
+                                <div ref={messagesEndRef} />
+                            </div>
+                        </div>
+                        <div className="terminal-footer">
+                            <form onSubmit={handleAddMessage} className="message-form">
+                                <span className="prompt">&gt;</span>
+                                <input 
+                                    type="text"
+                                    value={newMessage}
+                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    placeholder="Type your message..."
+                                    maxLength={MAX_CHARACTERS}
+                                    disabled={isSending || !isConnected}
+                                    required
+                                />
+                                <button type="submit" disabled={isSending || !isConnected}>
+                                    {isSending ? 'Sending...' : 'SEND'}
+                                </button>
+                            </form>
+                            <div className="character-count">
+                                {newMessage.length}/{MAX_CHARACTERS}
+                            </div>
+                        </div>
+                    </>
+                )}
+                {showDeleteConfirm && (
+                    <div className="confirm-delete">
+                        <p>Are you sure you want to delete this messenger?</p>
+                        <button onClick={handleDeleteConfirm}>Yes, delete</button>
+                        <button onClick={handleDeleteCancel}>Cancel</button>
                     </div>
-                </>
-            )}
-            {showDeleteConfirm && (
-                <div className="confirm-delete">
-                    <p>Are you sure you want to delete this messenger?</p>
-                    <button onClick={handleDeleteConfirm}>Yes, delete</button>
-                    <button onClick={handleDeleteCancel}>Cancel</button>
-                </div>
-            )}
+                )}
+            </>
+        )}
         </div>
     );
 }
