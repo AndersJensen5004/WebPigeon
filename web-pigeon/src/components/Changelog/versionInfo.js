@@ -1,6 +1,16 @@
 // versionInfo.js
 export const versionHistory = [
     {
+      version: "1.0.5",
+      date: "2024-08-13",
+      changes: [
+        "Rework websockets, one per connected client",
+        "New logos",
+        "Adding connected users for messengers",
+        "Updates to login page"
+      ]
+    },
+    {
       version: "1.0.4",
       date: "2024-08-02",
       changes: [

@@ -1,35 +1,55 @@
 import io from 'socket.io-client';
 import config from './config';
 
-const sockets = {};
+let socket = null;
 
-export const getSocket = (messengerId) => {
-  if (!sockets[messengerId]) {
-    sockets[messengerId] = io(config.apiBaseUrl, {
+export const initializeSocket = (userId) => {
+  if (!socket) {
+    socket = io(config.apiBaseUrl, {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
-      query: { messengerId }
+      query: { userId }
     });
 
-    sockets[messengerId].on('connect', () => {
-      console.log(`Connected to Socket.IO server for messenger ${messengerId}`);
-      sockets[messengerId].emit('join', { messenger_id: messengerId });
+    socket.on('connect', () => {
+      console.log('Connected to Socket.IO server');
     });
 
-    sockets[messengerId].on('disconnect', () => {
-      console.log(`Disconnected from Socket.IO server for messenger ${messengerId}`);
+    socket.on('disconnect', () => {
+      console.log('Disconnected from Socket.IO server');
     });
   }
 
-  return sockets[messengerId];
+  return socket;
 };
 
-export const closeSocket = (messengerId) => {
-  if (sockets[messengerId]) {
-    sockets[messengerId].disconnect();
-    delete sockets[messengerId];
+export const joinMessenger = (messengerId) => {
+  if (socket) {
+    socket.emit('join', { messenger_id: messengerId });
+  }
+};
+
+export const leaveMessenger = (messengerId) => {
+  if (socket) {
+    socket.emit('leave', { messenger_id: messengerId });
+  }
+};
+
+export const sendMessage = (messengerId, content) => {
+  if (socket) {
+    socket.emit('new_message', {
+      messenger_id: messengerId,
+      content: content
+    });
+  }
+};
+
+export const closeSocket = () => {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
   }
 };

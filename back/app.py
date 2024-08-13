@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 import eventlet
 eventlet.monkey_patch()
@@ -27,6 +28,9 @@ CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}})
 # Setup Socket.IO
 socketio = SocketIO(app, cors_allowed_origins=app.config['SOCKETIO_CORS_ORIGINS'], async_mode='eventlet')
 active_connections: Dict[str, Set[str]] = {}
+user_rooms: Dict[str, Set[str]] = {}
+connected_users = defaultdict(set)
+
 
 
 # Setup MongoDB connection
@@ -282,77 +286,93 @@ def edit_profile(username):
 # WebSocket event handlers
 @socketio.on('connect')
 def handle_connect():
-    sid = request.sid  # type: ignore
-    messenger_id = request.args.get('messengerId')
-    if messenger_id:
-        join_room(messenger_id)
-        if messenger_id not in active_connections:
-            active_connections[messenger_id] = set()
-        active_connections[messenger_id].add(sid)
-        print(f'Client {sid} connected to messenger {messenger_id}')
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    sid = request.sid  # type: ignore
-    for messenger_id, connections in active_connections.items():
-        if sid in connections:
-            connections.remove(sid)
-            leave_room(messenger_id)
-            print(f'Client {sid} disconnected from messenger {messenger_id}')
-            break
-
+    sid = request.sid
+    user_id = request.args.get('userId')
+    if user_id:
+        active_connections[user_id] = sid
+        user_rooms[user_id] = set()
+        print(f'User {user_id} connected with socket {sid}')
+        emit('connect_response', {'status': 'connected'})
+    else:
+        raise ConnectionRefusedError('Authentication failed')
 
 @socketio.on('join')
 def on_join(data):
+    user_id = get_user_id_from_sid(request.sid)
     room = data['messenger_id']
     join_room(room)
-    if room not in active_connections:
-        active_connections[room] = set()
-    active_connections[room].add(request.sid)
-    print(f"User joined room: {room}")
-
+    user_rooms[user_id].add(room)
+    connected_users[room].add(user_id)
+    print(f"User {user_id} joined room: {room}")
+    user = users_collection.find_one({"_id": user_id})
+    emit('user_joined', {'user_id': user_id, 'username': user['username']}, room=room)
+    emit('connected_users', {'users': list(connected_users[room])}, room=room)
 
 @socketio.on('leave')
 def on_leave(data):
+    user_id = get_user_id_from_sid(request.sid)
     room = data['messenger_id']
     leave_room(room)
-    if room in active_connections:
-        active_connections[room].discard(request.sid)
-    print(f"User left room: {room}")
+    user_rooms[user_id].discard(room)
+    connected_users[room].discard(user_id)
+    print(f"User {user_id} left room: {room}")
+    emit('user_left', {'user_id': user_id}, room=room)
+    emit('connected_users', {'users': list(connected_users[room])}, room=room)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    sid = request.sid
+    user_id = next((uid for uid, s in active_connections.items() if s == sid), None)
+    if user_id:
+        del active_connections[user_id]
+        rooms = user_rooms.pop(user_id, set())
+        for room in rooms:
+            leave_room(room)
+            connected_users[room].discard(user_id)
+            emit('user_left', {'user_id': user_id}, room=room)
+            emit('connected_users', {'users': list(connected_users[room])}, room=room)
+        print(f'User {user_id} disconnected')
+
 
 @socketio.on('new_message')
 def handle_new_message(data):
-    sid = request.sid  # type: ignore
+    user_id = get_user_id_from_sid(request.sid)
     room = data['messenger_id']
-    if sid not in active_connections.get(room, set()):
+
+    if room not in user_rooms.get(user_id, set()):
         return {'status': 'error', 'message': 'Not connected to this messenger'}
+
     try:
         print('Received new message:', data)
         messenger_collection = messenger_data[room]
         message_data = {
             'content': data['content'],
-            'sender_id': data['sender_id'],
+            'sender_id': user_id,
             'timestamp': datetime.now(timezone.utc)
         }
         result = messenger_collection.insert_one(message_data)
 
-        user = users_collection.find_one({'_id': data['sender_id']})
+        user = users_collection.find_one({'_id': user_id})
 
-        for connection in active_connections.get(room, set()):
-            emit('message', {
-                'id': str(result.inserted_id),
-                'content': data['content'],
-                'sender_id': data['sender_id'],
-                'timestamp': message_data['timestamp'].isoformat(),
-                'username': user['username'],
-                'profile_photo': user['profile_photo']
-            }, room=connection)
+        emit_data = {
+            'id': str(result.inserted_id),
+            'content': message_data['content'],
+            'sender_id': user_id,
+            'timestamp': message_data['timestamp'].isoformat(),
+            'username': user['username'] if user else None,
+            'profile_photo': user['profile_photo'] if user else None
+        }
 
-        print("Message processed successfully")  # Add this for debugging
+        emit('message', emit_data, room=room)
+
         return {'status': 'success'}
     except Exception as e:
         print(f"Error handling new message: {str(e)}")
         return {'status': 'error', 'message': 'Server error occurred'}
+
+
+def get_user_id_from_sid(sid):
+    return next((uid for uid, s in active_connections.items() if s == sid), None)
 
 
 if __name__ == '__main__':

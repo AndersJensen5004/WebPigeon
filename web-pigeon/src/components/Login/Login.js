@@ -5,6 +5,7 @@ import config from '../../config';
 import axios from "axios";
 import checkmark from "../../assets/images/checkmark.png";
 import restrictmark from "../../assets/images/restrictmark.png";
+import logo from "../../assets/images/logo512.png";
 import "./Login.css";
 
 const Login = () => {
@@ -43,6 +44,7 @@ const Login = () => {
 
     return (
         <div className="login">
+            <img src={logo} alt="WebPigeon logo" className="logo" />
             <h2>Welcome!</h2>
             <span>
                 <h3>If you haven't already...</h3>
