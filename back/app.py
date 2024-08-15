@@ -29,7 +29,7 @@ CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}})
 socketio = SocketIO(app, cors_allowed_origins=app.config['SOCKETIO_CORS_ORIGINS'], async_mode='eventlet')
 active_connections: Dict[str, Set[str]] = {}
 user_rooms: Dict[str, Set[str]] = {}
-connected_users = defaultdict(set)
+connected_users = defaultdict(dict)
 
 
 
@@ -296,17 +296,23 @@ def handle_connect():
     else:
         raise ConnectionRefusedError('Authentication failed')
 
+
 @socketio.on('join')
 def on_join(data):
     user_id = get_user_id_from_sid(request.sid)
     room = data['messenger_id']
     join_room(room)
     user_rooms[user_id].add(room)
-    connected_users[room].add(user_id)
-    print(f"User {user_id} joined room: {room}")
+
     user = users_collection.find_one({"_id": user_id})
-    emit('user_joined', {'user_id': user_id, 'username': user['username']}, room=room)
-    emit('connected_users', {'users': list(connected_users[room])}, room=room)
+    username = user['username']
+
+    connected_users[room][user_id] = username
+    print(f"User {username} joined room: {room}")
+
+    emit('user_joined', {'user_id': user_id, 'username': username}, room=room)
+    emit('connected_users', {'users': list(connected_users[room].values())}, room=room)
+
 
 @socketio.on('leave')
 def on_leave(data):
@@ -314,10 +320,13 @@ def on_leave(data):
     room = data['messenger_id']
     leave_room(room)
     user_rooms[user_id].discard(room)
-    connected_users[room].discard(user_id)
-    print(f"User {user_id} left room: {room}")
-    emit('user_left', {'user_id': user_id}, room=room)
-    emit('connected_users', {'users': list(connected_users[room])}, room=room)
+
+    username = connected_users[room].pop(user_id, None)  # Remove user and get username
+    print(f"User {username} left room: {room}")
+
+    emit('user_left', {'user_id': user_id, 'username': username}, room=room)
+    emit('connected_users', {'users': list(connected_users[room].values())}, room=room)
+
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -328,9 +337,9 @@ def handle_disconnect():
         rooms = user_rooms.pop(user_id, set())
         for room in rooms:
             leave_room(room)
-            connected_users[room].discard(user_id)
-            emit('user_left', {'user_id': user_id}, room=room)
-            emit('connected_users', {'users': list(connected_users[room])}, room=room)
+            username = connected_users[room].pop(user_id, None)
+            emit('user_left', {'user_id': user_id, 'username': username}, room=room)
+            emit('connected_users', {'users': list(connected_users[room].values())}, room=room)
         print(f'User {user_id} disconnected')
 
 
