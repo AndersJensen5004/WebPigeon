@@ -102,17 +102,17 @@ const MessengerDetails = () => {
             });
 
             socket.on('user_joined', (data) => {
-                console.log('User joined:', data);
-                // You might want to show a notification or update the UI here
+                console.log('User joined:', data.username);
+                //notification or update the UI here
             });
 
             socket.on('user_left', (data) => {
-                console.log('User left:', data);
-                // You might want to show a notification or update the UI here
+                console.log('User left:', data.username);
+                //notification or update the UI here
             });
 
             socket.on('connected_users', (data) => {
-                console.log('Connected users:', data);
+                console.log('Connected users:', data.users);
                 setConnectedUsers(data.users);
             });
 
@@ -198,8 +198,8 @@ const MessengerDetails = () => {
                         <div className="connected-users">
                             <h3>Connected Users</h3>
                             <ul>
-                                {connectedUsers.map((userId) => (
-                                    <li key={userId}>{userId}</li> // You might want to fetch and display usernames instead of IDs
+                                {connectedUsers.map((username, index) => (
+                                    <li key={index}>{username}</li>
                                 ))}
                             </ul>
                         </div>
