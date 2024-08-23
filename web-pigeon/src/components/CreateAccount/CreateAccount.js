@@ -11,7 +11,7 @@ const CreateAccount = () => {
     const[password, setPassword] = useState('');
     const[confirmedPassword, setConfirmedPassword] = useState('');
     const[error, setError] = useState('');
-
+    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -22,6 +22,7 @@ const CreateAccount = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
 
         if (!isUsernameValid) {
             setError("Username can only contain letters, numbers, and underscores");
@@ -43,6 +44,8 @@ const CreateAccount = () => {
             navigate('/login');
         } catch (error) {
             setError(error.response?.data?.error || 'An error occurred');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -79,7 +82,7 @@ const CreateAccount = () => {
                     value = {confirmedPassword}
                     onChange = {(e) => setConfirmedPassword(e.target.value)}
                 />
-            <button className="retro-button">
+            <button className="retro-button" disabled={isLoading || !isFormValid}>
                 Create Account
                 <img src={isFormValid ? checkmark : restrictmark} alt="status mark" />
                 </button>    

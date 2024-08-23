@@ -13,6 +13,8 @@ const Login = () => {
     const[username, setUsername] = useState('');
     const[password, setPassword] = useState('');
     const[error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
 
     const navigate = useNavigate();
     const { login } = useContext(AuthContext);
@@ -21,6 +23,8 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
+
 
         try {
             const response = await axios.post(`${config.apiBaseUrl}/login`, {
@@ -39,6 +43,8 @@ const Login = () => {
             }
         } catch (error) {
             setError(error.response?.data?.error || 'Login failed. Please check your credentials.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -66,7 +72,7 @@ const Login = () => {
                     value = {password}
                     onChange = {(e) => setPassword(e.target.value)}
                 />
-            <button className="retro-button">
+            <button className="retro-button" disabled={isLoading || !username || !password}>
                 Login
                 <img src={username !== '' && password !== '' ? checkmark : restrictmark} alt="status mark" />
             </button>    
