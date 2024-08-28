@@ -13,6 +13,8 @@ import EditUsername from './components/Profile/EditUsername.js';
 import EditPassword from './components/Profile/EditPassword.js';
 import EditProfilePhoto from './components/Profile/EditProfilePhoto.js';
 import Changelog from './components/Changelog/Changelog.js';
+import About from './components/About/About.js';
+import Search from './components/Search/Search.js';
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
             <Route exact path="/profile/:username/edit/password" element={<EditPassword/>} />
             <Route exact path="/profile/:username/edit/photo" element={<EditProfilePhoto/>} />
             <Route exact path="/changelog" element={<Changelog />} />
+            <Route exact path="/about" element={<About />} />
+            <Route exact path="Search" element={<Search />} />
             <Route path="*" element={<NotFound/>} />
           </Routes>
         </div>
