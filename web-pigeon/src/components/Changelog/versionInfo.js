@@ -1,6 +1,14 @@
 // versionInfo.js
 export const versionHistory = [
   {
+    version: "1.0.7",
+    date: "2024-08-27",
+    changes: [
+      "Added About page",
+      "Small visual changes..."
+    ]
+  },
+  {
     version: "1.0.6",
     date: "2024-08-23",
     changes: [
