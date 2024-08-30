@@ -36,7 +36,7 @@ function App() {
             <Route exact path="/profile/:username/edit/photo" element={<EditProfilePhoto/>} />
             <Route exact path="/changelog" element={<Changelog />} />
             <Route exact path="/about" element={<About />} />
-            <Route exact path="Search" element={<Search />} />
+            <Route exact path="/search" element={<Search />} />
             <Route path="*" element={<NotFound/>} />
           </Routes>
         </div>

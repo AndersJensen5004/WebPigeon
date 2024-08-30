@@ -62,6 +62,7 @@ const Navbar = () => {
                             <Link to="/">Home</Link>
                             <Link to="/search">Find</Link>
                             <Link to="/create">Create</Link>
+                            <Link to="/about">About</Link>
                             {user && <Link to={`/profile/${user.username}`}>Profile</Link>}
                             <Link to="/changeLog">Change Log</Link>
                             {user ? (

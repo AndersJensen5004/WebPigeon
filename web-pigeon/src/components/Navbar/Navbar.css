@@ -81,6 +81,7 @@
     width: 100%;
     background-color: transparent;
     padding: 0.5rem;
+    z-index: 1000;
 }
 
 .footer .menu-container {
@@ -135,3 +136,55 @@
     background-color: #000080;
     color: #ffffff;
 }
+
+@media screen and (max-width: 600px) {
+    .navbar {
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem;
+    }
+  
+
+  
+    .navbar .links {
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
+  
+    .navbar .link {
+      width: 100%;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+  
+    .navbar img {
+      max-height: 3rem;
+    }
+  
+    .navbar .links img {
+      max-height: 1.5rem;
+      margin-right: 0.5rem;
+    }
+  
+    /* Adjust footer for mobile */
+    .footer {
+      padding: 0.25rem;
+    }
+  
+    .footer .menu-button {
+      font-size: 1.2rem;
+      padding: 0.2rem 0.4rem;
+    }
+  
+    .footer .menu-button img {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+  
+    .footer .menu-dropdown {
+      left: 0;
+      right: 0;
+      width: auto;
+    }
+  }

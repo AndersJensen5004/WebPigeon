@@ -73,8 +73,9 @@ const Create = () => {
             <div className="window-body">
                 {error && <div className="error-box">{error}</div>}
                 <form onSubmit={validateForm} noValidate>
-                    <div className="field-row">
-                        <label htmlFor="title">Messenger Title:</label>
+                <div className="field-row">
+                    <label htmlFor="title">Messenger Title:</label>
+                    <div className="input-wrapper">
                         <input
                             type="text"
                             id="title"
@@ -85,8 +86,11 @@ const Create = () => {
                         />
                         <div className="char-count">{title.length} / 100</div>
                     </div>
-                    <div className="field-row">
-                        <label htmlFor="description">Messenger Description:</label>
+                </div>
+                    
+                <div className="field-row">
+                    <label htmlFor="description">Messenger Description:</label>
+                    <div className="input-wrapper">
                         <textarea
                             id="description"
                             required
@@ -96,6 +100,7 @@ const Create = () => {
                         ></textarea>
                         <div className="char-count">{description.length} / 1000</div>
                     </div>
+                </div>
                     <div className="field-row">
                         <label>Creator:</label>
                         <span className="messenger-creator">{user ? user.username : 'Not logged in'}</span>
