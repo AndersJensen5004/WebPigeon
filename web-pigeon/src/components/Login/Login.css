@@ -4,6 +4,7 @@
     text-align: center;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 4rem;
   }
   .login span{
     display: flex;

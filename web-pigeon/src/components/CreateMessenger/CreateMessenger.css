@@ -1,7 +1,7 @@
 .create-messenger {
   width: 55%;
   min-width: 20rem;
-  margin: 2rem auto;
+  margin: 2rem auto ;
   background-color: #c0c0c0;
   border: 0.125rem solid;
   border-color: #ffffff #808080 #808080 #ffffff;
@@ -23,7 +23,7 @@
 }
 
 .field-row {
-  align-items: center;
+  align-items: flex-start;
   display: flex;
   margin-bottom: 0.75rem;
 }
@@ -41,15 +41,17 @@
 
 .field-row input,
 .field-row textarea {
+  width: 95%;
   flex: 1;
   border: 0.125rem inset #ffffff;
   background-color: #ffffff;
-  padding: 0.1875rem;
+  padding: 0.25rem;
   font-size: 0.9rem;
 }
 
 .field-row textarea {
-  height: 13.5rem;
+  min-height: 13.5rem;
+  height: auto;
   resize: vertical;
 }
 
@@ -57,6 +59,12 @@
   font-size: 1rem;
   font-weight: bold;
   color: #d54545;
+}
+
+.input-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .char-count {
@@ -67,3 +75,28 @@
   margin-left: 0.5rem;
 }
 
+@media screen and (max-width: 768px) {
+  .create-messenger {
+    width: 95%;
+    min-width: unset;
+    margin: 1rem auto;
+  }
+
+  .field-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .field-row label {
+    flex: none;
+    margin-bottom: 0.5rem;
+  }
+
+  .input-wrapper {
+    width: 100%;
+  }
+
+  .field-row textarea {
+    height: 20rem;
+  }
+}
