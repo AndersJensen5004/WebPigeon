@@ -19,10 +19,11 @@
     background-color: unset;
   }
   .messenger-preview {
+    text-wrap: wrap;
     max-width: 55%;
     padding: 0.8rem 1.4rem;
     margin: 0 auto;
-    border: 2px solid #7c7c7c;
+    border: 3px solid #7c7c7c;
     border-bottom: none;
     box-sizing: border-box;
   }
@@ -50,4 +51,13 @@
   .messenger-preview-arrow {
     transform: rotate(90deg);
     opacity: 0;
+  }
+
+  @media screen and (max-width: 768px) {
+
+    .messenger-preview{
+      max-width: 102%;
+    }
+
+
   }
