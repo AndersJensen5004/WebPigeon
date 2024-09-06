@@ -4,6 +4,8 @@ import config from '../../config';
 import axios from "axios";
 import checkmark from "../../assets/images/checkmark.png";
 import restrictmark from "../../assets/images/restrictmark.png";
+import Loading from '../Loading/Loading.js';
+
 
 const CreateAccount = () => {
 
@@ -82,10 +84,12 @@ const CreateAccount = () => {
                     value = {confirmedPassword}
                     onChange = {(e) => setConfirmedPassword(e.target.value)}
                 />
+            {isLoading ? <Loading /> :
             <button className="retro-button" disabled={isLoading || !isFormValid}>
                 Create Account
                 <img src={isFormValid ? checkmark : restrictmark} alt="status mark" />
-                </button>    
+                </button>  
+            }     
             </form>
         </div>
     );

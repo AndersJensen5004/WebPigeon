@@ -1,6 +1,15 @@
 // versionInfo.js
 export const versionHistory = [
   {
+    version: "1.1.1",
+    date: "2024-09-06",
+    changes: [
+      "Changing Loading Icons",
+      "Fixed visual display of messengerns on home page",
+      "Fixed long descriptions of messengers not displaying correctly",
+    ]
+  },
+  {
     version: "1.1.0",
     date: "2024-08-30",
     changes: [

@@ -188,13 +188,13 @@ const MessengerDetails = () => {
                                 {user && user.id === messenger.creator_id && (
                                     <button onClick={handleDeleteClick} className="delete-btn">DELETE</button>
                                 )}
-                                {showDescription && (
+                            </div>
+                        </div>
+                        {showDescription && (
                                     <div className="description">
                                         <p>{messenger.description}</p>
                                     </div>
                                 )}
-                            </div>
-                        </div>
                         <div className="connected-users">
                             <h3>Connected Users</h3>
                             <ul>

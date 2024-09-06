@@ -28,7 +28,7 @@
     box-sizing: border-box;
   }
   .messenger-preview:last-child {
-    border-bottom: 2px solid #7c7c7c;
+    border-bottom: 3px solid #7c7c7c;
   }
   .messenger-preview:hover,
   .messenger-preview:hover * {
@@ -41,6 +41,7 @@
     font-size: 20px;
     color: #003bcf;
     margin-bottom: 8px;
+    word-break: break-all;
   }
   .messenger-preview a{
     display: flex;

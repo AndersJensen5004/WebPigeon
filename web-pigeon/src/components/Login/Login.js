@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../contexts/AuthContext';
+import Loading from '../Loading/Loading.js';
 import config from '../../config';
 import axios from "axios";
 import checkmark from "../../assets/images/checkmark.png";
@@ -72,10 +73,12 @@ const Login = () => {
                     value = {password}
                     onChange = {(e) => setPassword(e.target.value)}
                 />
+            {isLoading ? <Loading /> :
             <button className="retro-button" disabled={isLoading || !username || !password}>
                 Login
                 <img src={username !== '' && password !== '' ? checkmark : restrictmark} alt="status mark" />
-            </button>    
+            </button>
+            }    
             </form>
         </div>
     );
