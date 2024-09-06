@@ -1,7 +1,7 @@
 import os
 from collections import defaultdict
-
 import eventlet
+
 eventlet.monkey_patch()
 
 from flask import Flask, request, jsonify
@@ -15,8 +15,10 @@ from typing import Dict, Set
 import re
 import bcrypt
 import uuid
-from datetime import datetime, timezone 
+from datetime import datetime, timezone
 from config import ProductionConfig, DevelopmentConfig
+import requests
+
 
 app = Flask(__name__)
 config_class = ProductionConfig if os.environ.get('FLASK_ENV') == 'production' else DevelopmentConfig
@@ -25,13 +27,12 @@ app.config.from_object(config_class)
 # Setup CORS
 CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}})
 
+
 # Setup Socket.IO
 socketio = SocketIO(app, cors_allowed_origins=app.config['SOCKETIO_CORS_ORIGINS'], async_mode='eventlet')
 active_connections: Dict[str, Set[str]] = {}
 user_rooms: Dict[str, Set[str]] = {}
 connected_users = defaultdict(dict)
-
-
 
 # Setup MongoDB connection
 client = MongoClient(app.config['MONGODB_URI'])
@@ -39,12 +40,32 @@ db = client['web-pigeon']
 users_collection = db['users']
 messengers_collection = db['messengers']
 messenger_data = client['messenger-data']
+
+RECAPTCHA_SECRET_KEY = '6LeCpjgqAAAAAKCkp2uTP6kb3tt4TgErlgB6fD-w'
+RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
+
+
+def verify_recaptcha(captcha_token):
+    data = {
+        'secret': RECAPTCHA_SECRET_KEY,
+        'response': captcha_token
+    }
+    response = requests.post(RECAPTCHA_VERIFY_URL, data=data)
+    result = response.json()
+    return result.get('success', False)
+
+
 @app.route('/create_account', methods=['POST'])
 def create_account():
     data = request.json
     username = data['username']
     password = data['password']
-    
+    captcha_token = data.get('captchaToken')
+
+    # Verify reCAPTCHA
+    if not verify_recaptcha(captcha_token):
+        return jsonify({"error": "CAPTCHA required"}), 403
+
     # Check if username is valid 
     if not re.match(r'^[a-zA-Z0-9_]+$', username):
         return jsonify({"error": "Username can only contain letters, numbers, and underscores"}), 400
@@ -65,8 +86,7 @@ def create_account():
     # Check if the generated UUID already exists
     while users_collection.find_one({"_id": user_id}):
         user_id = str(uuid.uuid4())
-        
-    
+
     # Create new user document
     new_user = {
         "_id": user_id,
@@ -83,6 +103,7 @@ def create_account():
     result = users_collection.insert_one(new_user)
 
     return jsonify({"message": "Account created successfully", "id": str(result.inserted_id)}), 201
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -103,14 +124,14 @@ def login():
         }), 200
     else:
         return jsonify({"error": "Invalid username or password"}), 401
-    
-    
+
     
 #####################################
 # Messengers
 #####################################
 messengers_collection = db['messengers']
 messages_collection = db['messages']
+
 
 @app.route('/messengers', methods=['GET'])
 def get_messengers():
@@ -153,6 +174,7 @@ def get_messenger(id):
         return jsonify(messenger)
     return jsonify({'error': 'Messenger not found'}), 404
 
+
 @app.route('/messengers', methods=['POST'])
 def create_messenger():
     data = request.json
@@ -175,6 +197,7 @@ def create_messenger():
     result = messengers_collection.insert_one(new_messenger)
     
     return jsonify({"message": "Messenger created successfully", "id": str(result.inserted_id)}), 201
+
 
 @app.route('/messengers/<id>/messages', methods=['POST'])
 def add_message(id):
@@ -213,6 +236,7 @@ def get_latest_messages(id):
 
     return jsonify(messages)
 
+
 @app.route('/messengers/<id>', methods=['DELETE'])
 def delete_messenger(id):
     messengers_collection.delete_one({'_id': id})
@@ -225,6 +249,8 @@ def delete_messenger(id):
 ###################################
 # Profile
 ###################################
+
+
 @app.route('/profile/<username>', methods=['GET'])
 def get_profile(username):
     user = users_collection.find_one({"username_lower": username.lower()})
@@ -239,6 +265,7 @@ def get_profile(username):
         }), 200
     else:
         return jsonify({"error": "User not found"}), 404
+
 
 @app.route('/profile/<username>/edit', methods=['PUT'])
 def edit_profile(username):

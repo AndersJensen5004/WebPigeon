@@ -7,6 +7,7 @@ export const versionHistory = [
       "Changing Loading Icons",
       "Fixed visual display of messengerns on home page",
       "Fixed long descriptions of messengers not displaying correctly",
+      "Adding a captcha component for creating accounts"
     ]
   },
   {
