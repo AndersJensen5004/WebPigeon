@@ -11,6 +11,10 @@ const About = () => {
                 </p>
 
                 <p>
+                    To secure end points start by using <a href='https:\\silent.link' target="_blank" rel="noreferrer">silent.link</a> for mobile and <a href='https:\\mullvad.net' target="_blank" rel="noreferrer">mullvad.net</a> for computer, it's also critical to use a secure browser...
+                </p>
+
+                <p>
                     What makes Web Pigeon unique?
                 </p>
                 <ul>

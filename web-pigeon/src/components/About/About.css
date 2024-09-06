@@ -38,3 +38,7 @@
 .About li {
     margin-bottom: 0.5em;
 }
+.About a{
+    color: #0000a6d4;
+    font-size: 1.1rem;
+}
