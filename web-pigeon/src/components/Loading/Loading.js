@@ -13,7 +13,7 @@ const Loading = () => {
     }, []);
 
     return (
-        <div className="retro-loading">
+        <div className="loading">
             <div className="loading-box">
                 <div className="loading-text">Loading...</div>
                 <div className="loading-bar">

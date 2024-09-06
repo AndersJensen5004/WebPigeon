@@ -34,7 +34,7 @@ const Home = () => {
         </div>
         <div className="home">
             { error && <div>{error}</div>}
-            { isPending && Loading}
+            { isPending && <Loading />}
             {messengers && <MessengerList messengers={messengers}/>}
         </div>
         </>
