@@ -26,6 +26,8 @@ const Navbar = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
+    //<Link to="/search">Find</Link>
+    //<Link className="link retro-button" to="/search"><span className="underline">F</span>ind</Link>
 
     return (
         <>
@@ -42,7 +44,6 @@ const Navbar = () => {
                     <img src={world} alt="world" />
                     <span><span className="underline">H</span>ome</span>
                 </Link>
-                <Link className="link retro-button" to="/search"><span className="underline">F</span>ind</Link>
                 <Link className="link retro-button" to="/create"><span className="underline">C</span>reate</Link>
                 {user ? (
                     <button className="link retro-button" onClick={handleLogout}><span className="underline">L</span>ogout</button>
@@ -60,7 +61,6 @@ const Navbar = () => {
                     {isMenuOpen && (
                         <div className="menu-dropdown">
                             <Link to="/">Home</Link>
-                            <Link to="/search">Find</Link>
                             <Link to="/create">Create</Link>
                             <Link to="/about">About</Link>
                             {user && <Link to={`/profile/${user.username}`}>Profile</Link>}

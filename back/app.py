@@ -94,7 +94,7 @@ def create_account():
         "username_lower": lowercase_username,  # Store lowercase version for searching
         "password": hashed_password,
         "created_at": datetime.now(timezone.utc),
-        "profile_photo": None,  # Default to None, can be updated later
+        "profile_photo": None,  # Default to None
         "last_online": datetime.now(timezone.utc),  # Set initial last online time
         "previous_usernames": []
     }
