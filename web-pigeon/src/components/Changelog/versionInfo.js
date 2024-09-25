@@ -1,6 +1,14 @@
 // versionInfo.js
 export const versionHistory = [
   {
+    version: "1.1.2",
+    date: "2024-09-25",
+    changes: [
+      "UI Updates to messengers",
+      "Full screen button added to messengers"
+    ]
+  },
+  {
     version: "1.1.1",
     date: "2024-09-06",
     changes: [

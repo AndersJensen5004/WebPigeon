@@ -21,6 +21,7 @@ const MessengerDetails = () => {
     const [isConnected, setIsConnected] = useState(false);
     const [isReconnecting, setIsReconnecting] = useState(false);
     const [connectedUsers, setConnectedUsers] = useState([]);
+    const [isFullScreen, setIsFullScreen] = useState(false);
     const navigate = useNavigate();
 
     const { currentUser: user, socket } = useAuth();
@@ -160,8 +161,24 @@ const MessengerDetails = () => {
         setShowDescription(!showDescription);
     };
 
+    useEffect(() => {
+        const handleFullScreenChange = () => {
+          setIsFullScreen(!!document.fullscreenElement);
+        };
+      
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
+      
+        return () => {
+          document.removeEventListener('fullscreenchange', handleFullScreenChange);
+        };
+      }, []);
+
+      const toggleFullScreen = () => {
+        setIsFullScreen(!isFullScreen);
+      };
+
     return ( 
-        <div className="messenger-details terminal-interface">
+        <div className={`messenger-details terminal-interface ${isFullScreen ? 'full-screen' : ''}`}>
             {!user && <div>Please log in to view this messenger.</div>}
             {user && (
                 <>
@@ -175,70 +192,75 @@ const MessengerDetails = () => {
                 { messenger && (
                     <>
                         <div className="terminal-header">
-                            <div>
-                                <h2>MESSENGER: {messenger.title}</h2>
-                                <p>CREATOR:  
-                                    <Link to={`/profile/${messenger.creator_username}`}>{messenger.creator_username}</Link>
-                                </p>
-                            </div>
-                            <div>
-                                <button onClick={toggleDescription} className="description-toggle">
-                                    {showDescription ? "HIDE DESCRIPTION" : "SHOW DESCRIPTION"}
-                                </button>
-                                {user && user.id === messenger.creator_id && (
-                                    <button onClick={handleDeleteClick} className="delete-btn">DELETE</button>
-                                )}
-                            </div>
+                          <div>
+                            <h2>{messenger.title}</h2>
+                            <p>Creator: <Link to={`/profile/${messenger.creator_username}`}>{messenger.creator_username}</Link></p>
+                          </div>
+                          <div className="header-buttons">
+                            <button onClick={toggleDescription} className="description-toggle">
+                              {showDescription ? "Hide Description" : "Show Description"}
+                            </button>
+                            <button onClick={toggleFullScreen} className="fullscreen-btn">
+                              {isFullScreen ? "Exit Full Screen" : "Full Screen"}
+                            </button>
+                            {user && user.id === messenger.creator_id && (
+                              <button onClick={handleDeleteClick} className="delete-btn">Delete</button>
+                            )}
+                          </div>
                         </div>
                         {showDescription && (
                                     <div className="description">
                                         <p>{messenger.description}</p>
                                     </div>
                                 )}
-                        <div className="connected-users">
-                            <h3>Connected Users</h3>
-                            <ul>
-                                {connectedUsers.map((username, index) => (
-                                    <li key={index}>{username}</li>
-                                ))}
-                            </ul>
-                        </div>
                         <div className="terminal-body">
-                            <div className="messages">  
-                                {messenger && messages && messages.map(message => (
-                                    <div key={message._id || message.id} className="message">
-                                            <img     
-                                                src={message.profile_photo || defaultProfilePicture} 
-                                                alt={`${message.username}'s profile`} 
-                                                className="profile-pic"
-                                            />
-                                        <div className="message-content">
-                                            <div className="message-header">
-                                                <Link to={`/profile/${message.username}`} className="username">{message.username}</Link>
-                                                <span className="timestamp">[{new Date(message.timestamp).toLocaleString()}]</span>
+                            <div className="sidebar">
+                            <div className="connected-users">
+                                <h3>Connected Users</h3>
+                                <ul>
+                                  {connectedUsers.map((username, index) => (
+                                    <li key={index}>{username}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                            <div className="messages-container">
+                                <div className="messages">  
+                                    {messenger && messages && messages.map(message => (
+                                        <div key={message._id || message.id} className="message">
+                                                <img     
+                                                    src={message.profile_photo || defaultProfilePicture} 
+                                                    alt={`${message.username}'s profile`} 
+                                                    className="profile-pic"
+                                                />
+                                            <div className="message-content">
+                                                <div className="message-header">
+                                                    <Link to={`/profile/${message.username}`} className="username">{message.username}</Link>
+                                                    <span className="timestamp">[{new Date(message.timestamp).toLocaleString()}]</span>
+                                                </div>
+                                                <span className="message-text">{message.content}</span>
                                             </div>
-                                            <span className="message-text">{message.content}</span>
                                         </div>
-                                    </div>
-                                ))} 
-                                <div ref={messagesEndRef} />
+                                    ))} 
+                                    <div ref={messagesEndRef} />
+                                </div>
                             </div>
                         </div>
                         <div className="terminal-footer">
                             <form onSubmit={handleAddMessage} className="message-form">
-                                <span className="prompt">&gt;</span>
-                                <input 
-                                    type="text"
-                                    value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
-                                    placeholder="Type your message..."
-                                    maxLength={MAX_CHARACTERS}
-                                    disabled={isSending || !isConnected}
-                                    required
-                                />
-                                <button type="submit" disabled={isSending || !isConnected}>
-                                    {isSending ? 'Sending...' : 'SEND'}
-                                </button>
+                            <span className="prompt">&gt;</span>
+                            <input 
+                              type="text"
+                              value={newMessage}
+                              onChange={(e) => setNewMessage(e.target.value)}
+                              placeholder="Type your message..."
+                              maxLength={MAX_CHARACTERS}
+                              disabled={isSending || !isConnected}
+                              required
+                            />
+                            <button type="submit" disabled={isSending || !isConnected}>
+                              {isSending ? 'Sending...' : 'SEND'}
+                            </button>
                             </form>
                             <div className="character-count">
                                 {newMessage.length}/{MAX_CHARACTERS}
