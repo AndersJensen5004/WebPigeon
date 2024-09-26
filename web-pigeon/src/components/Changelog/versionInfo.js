@@ -1,6 +1,14 @@
 // versionInfo.js
 export const versionHistory = [
   {
+    version: "1.1.3",
+    date: "2024-09-26",
+    changes: [
+      "More updates to messengers...",
+      "Added the ability to @username in chat, message will show up highlighted"
+    ]
+  },
+  {
     version: "1.1.2",
     date: "2024-09-25",
     changes: [
