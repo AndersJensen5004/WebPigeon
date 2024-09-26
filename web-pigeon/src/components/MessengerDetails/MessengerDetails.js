@@ -177,6 +177,45 @@ const MessengerDetails = () => {
         setIsFullScreen(!isFullScreen);
       };
 
+      const groupMessages = useCallback((messages) => {
+        return messages.reduce((acc, message, index, array) => {
+          if (index === 0 || message.username !== array[index - 1].username) {
+            acc.push({
+              username: message.username,
+              profilePhoto: message.profile_photo,
+              messages: [{content: message.content, timestamp: message.timestamp}]
+            });
+          } else {
+            acc[acc.length - 1].messages.push({content: message.content, timestamp: message.timestamp});
+          }
+          return acc;
+        }, []);
+      }, []);
+    
+      const formatTimestamp = useCallback((timestamp) => {
+        const messageDate = new Date(timestamp);
+        const today = new Date();
+        const isToday = messageDate.toDateString() === today.toDateString();
+        
+        if (isToday) {
+          return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else {
+          return messageDate.toLocaleString([], { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          });
+        }
+      }, []);
+
+      const checkForMention = useCallback((content) => {
+        if (!user) return false;
+        const regex = new RegExp(`@${user.username}\\b`, 'gi');
+        return regex.test(content);
+      }, [user]);
+
     return ( 
         <div className={`messenger-details terminal-interface ${isFullScreen ? 'full-screen' : ''}`}>
             {!user && <div>Please log in to view this messenger.</div>}
@@ -214,37 +253,43 @@ const MessengerDetails = () => {
                                     </div>
                                 )}
                         <div className="terminal-body">
-                            <div className="sidebar">
+                          <div className="sidebar">
                             <div className="connected-users">
-                                <h3>Connected Users</h3>
-                                <ul>
-                                  {connectedUsers.map((username, index) => (
-                                    <li key={index}>{username}</li>
-                                  ))}
-                                </ul>
-                              </div>
+                              <h3>Connected Users</h3>
+                              <ul>
+                                {connectedUsers.map((username, index) => (
+                                  <li key={index}>{username}</li>
+                                ))}
+                              </ul>
                             </div>
-                            <div className="messages-container">
-                                <div className="messages">  
-                                    {messenger && messages && messages.map(message => (
-                                        <div key={message._id || message.id} className="message">
-                                                <img     
-                                                    src={message.profile_photo || defaultProfilePicture} 
-                                                    alt={`${message.username}'s profile`} 
-                                                    className="profile-pic"
-                                                />
-                                            <div className="message-content">
-                                                <div className="message-header">
-                                                    <Link to={`/profile/${message.username}`} className="username">{message.username}</Link>
-                                                    <span className="timestamp">[{new Date(message.timestamp).toLocaleString()}]</span>
-                                                </div>
-                                                <span className="message-text">{message.content}</span>
-                                            </div>
-                                        </div>
-                                    ))} 
-                                    <div ref={messagesEndRef} />
+                          </div>
+                          <div className="messages-container">
+                            <div className="messages">  
+                              {messenger && messages && groupMessages(messages).map((group, groupIndex) => (
+                                <div key={groupIndex} className="message-group">
+                                  <img     
+                                    src={group.profilePhoto || defaultProfilePicture} 
+                                    alt={`${group.username}'s profile`} 
+                                    className="profile-pic"
+                                  />
+                                  <div className="message-content">
+                                    <div className="message-header">
+                                      <Link to={`/profile/${group.username}`} className="username">{group.username}</Link>
+                                    </div>
+                                    {group.messages.map((message, messageIndex) => (
+                                      <div key={messageIndex} className={`message ${checkForMention(message.content) ? 'mention' : ''}`}>
+                                        <span className="message-text">
+                                          {message.content}
+                                        </span>
+                                        <span className="timestamp">{formatTimestamp(message.timestamp)}</span>
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
+                              ))} 
+                              <div ref={messagesEndRef} />
                             </div>
+                          </div>
                         </div>
                         <div className="terminal-footer">
                             <form onSubmit={handleAddMessage} className="message-form">
