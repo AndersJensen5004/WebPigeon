@@ -22,7 +22,7 @@ const Loading = () => {
             </div>
             {showStartupMessage && (
                 <div className="startup-message">
-                    Note: If the server is starting up, this could take up to 60 seconds.
+                    Note: If the server is starting up, this could take up to 120 seconds... Web Pigeon is on a free hosting service.
                 </div>
             )}
         </div>
